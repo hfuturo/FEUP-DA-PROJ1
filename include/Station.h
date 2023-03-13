@@ -10,6 +10,7 @@
 class Station;
 
 class Station {
+
     std::string name;
     std::string district;
     std::string municipality;
