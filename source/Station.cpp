@@ -2,11 +2,18 @@
 // Created by Henrique Silva on 13/03/2023.
 //
 
+#include <string>
+
 #include "../include/Station.h"
+#include "../include/Network.h"
 
-Station::Station(std::string name, std::string district, std::string municipality, std::string township,
-                 std::string line) {
-
+Station::Station(const std::string& name, const std::string& district, const std::string& municipality, const std::string &township,
+                 const std::string& line) {
+    this->name = name;
+    this->district = district;
+    this->municipality = municipality;
+    this->township = township;
+    this->line = line;
 }
 
 std::string Station::getDistrict() const {
@@ -27,4 +34,8 @@ std::string Station::getName() const {
 
 std::string Station::getTownShip() const {
     return this->township;
+}
+
+void Station::addLine(Station *dest, const int capacity, const std::string &service) const {
+    auto n = new Network(this, dest, capacity, service);
 }

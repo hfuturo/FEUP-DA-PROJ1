@@ -7,19 +7,19 @@
 
 #include <string>
 
+#include "Station.h"
+
 class Network;
 
 class Network {
-    std::string station_a;
-    std::string station_b;
+    Station* origin;
+    Station* dest;
     unsigned int capacity;
     std::string service;
-
 public:
-    Network(std::string station_a, std::string station_b, unsigned int capacity, std::string service);
-
-    std::string getStation_a() const;
-    std::string getStation_b() const;
+    Network(Station* origin, Station* dest, int capacity, std::string serv);
+    Station* getOrigin() const;
+    Station* getDest() const;
     unsigned int getCapacity() const;
     std::string getService() const;
 };
