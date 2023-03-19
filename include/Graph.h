@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Station.h"
+#include "StationEdge.h"
 
 class Graph;
 

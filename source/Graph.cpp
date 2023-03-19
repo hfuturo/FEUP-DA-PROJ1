@@ -2,9 +2,11 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <iostream>
 
 #include "../include/Graph.h"
 #include "../include/constants.h"
+#include "../include/StationEdge.h"
 
 std::vector<Station*> Graph::getStationSet() const {
     return this->stationSet;
@@ -33,9 +35,10 @@ void Graph::readStations() {
         getline(ss, township, ',');
         getline(ss, line, ',');
 
-        if (findStation(name) == nullptr) continue;
+        if (findStation(name) != nullptr) continue;
         if (!addStation(name, district, municipality, township, line)) continue;
     }
+
     stationFile.close();
 }
 
@@ -59,7 +62,7 @@ bool Graph::addLine(const std::string &origin, const std::string &dest, const in
 }
 
 void Graph::readNetwork() {
-    std::ifstream networkFile(STATIONS_FILE_PATH);
+    std::ifstream networkFile(NETWORK_FILE_PATH);
 
     if (networkFile.fail()) return;
 
@@ -73,7 +76,17 @@ void Graph::readNetwork() {
         getline(ss, dest, ',');
         getline(ss, capacity, ',');
         getline(ss, service, ',');
+       // std::cout << origin << " " << dest << " " << capacity << " " << service << std::endl;
         addLine(origin, dest, stoi(capacity), service);
+    }
+
+    for (auto& s : getStationSet()) {
+        auto e = s->getAdj();
+        std::cout << s->getName() << " : " << std::endl;
+        for (auto edge : e) {
+            std::cout << "\t";
+            std::cout << edge->getOrigin()->getName() << " -> " << edge->getDest()->getName() << " ( " << edge->getCapacity() << " ) " << edge->getService() << std::endl;
+        }
     }
 
 }
