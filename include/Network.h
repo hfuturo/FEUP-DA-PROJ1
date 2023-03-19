@@ -1,9 +1,5 @@
-//
-// Created by Henrique Silva on 13/03/2023.
-//
-
-#ifndef DA_PROJ1_EDGE_H
-#define DA_PROJ1_EDGE_H
+#ifndef DA_PROJ1_NETWORK_H
+#define DA_PROJ1_NETWORK_H
 
 #include <string>
 
@@ -12,16 +8,16 @@
 class Network;
 
 class Network {
+    int capacity;
+    std::string service;
     Station* origin;
     Station* dest;
-    unsigned int capacity;
-    std::string service;
 public:
-    Network(Station* origin, Station* dest, int capacity, std::string serv);
+    Network(Station* origin, Station* dest, int capacity, const std::string& service);
     Station* getOrigin() const;
     Station* getDest() const;
-    unsigned int getCapacity() const;
+    int getCapacity() const;
     std::string getService() const;
 };
 
-#endif //DA_PROJ1_EDGE_H
+#endif

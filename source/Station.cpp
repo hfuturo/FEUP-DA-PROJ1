@@ -5,7 +5,6 @@
 #include <string>
 
 #include "../include/Station.h"
-#include "../include/Network.h"
 
 Station::Station(const std::string& name, const std::string& district, const std::string& municipality, const std::string &township,
                  const std::string& line) {
@@ -37,5 +36,5 @@ std::string Station::getTownShip() const {
 }
 
 void Station::addLine(Station *dest, const int capacity, const std::string &service) const {
-    auto n = new Network(this, dest, capacity, service);
+
 }

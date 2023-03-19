@@ -14,8 +14,9 @@ class Station {
     std::string municipality;
     std::string township;
     std::string line;
-    //std::vector<Network*> adj;
-    //std::vector<Network*> incoming;
+    std::vector<Network*> adj;
+    std::vector<Network*> incoming;
+    Network* n;
 public:
     Station(const std::string& name, const std::string& district, const std::string& municipality, const std::string& township, const std::string& line);
     std::string getName() const;
