@@ -6,12 +6,10 @@
 
 /************************* Station  **************************/
 
-Station::Station(const std::string &name, const std::string &district, const std::string &municipality, const std::string &township, const std::string &line) {
-    this->name = name;
-    this->district = district;
-    this->municipality = municipality;
-    this->township = township;
-    this->line = line;
+Station::Station(const std::string &name, const std::string &district, const std::string &municipality, const std::string &township, const std::string &line):
+    name(name), district(district), municipality(municipality), township(township), line(line) {
+    this->setVisited(false);
+    this->setPath(nullptr);
 }
 
 std::string Station::getDistrict() const {
@@ -40,6 +38,22 @@ std::vector<Edge *> Station::getAdj() const {
 
 std::vector<Edge *> Station::getIncoming() const {
     return this->incoming;
+}
+
+bool Station::isVisited() const {
+    return this->visited;
+}
+
+void Station::setVisited(bool vis) {
+    this->visited = vis;
+}
+
+Edge *Station::getPath() const {
+    return this->path;
+}
+
+void Station::setPath(Edge *path) {
+    this->path = path;
 }
 
 Edge* Station::addLine(Station *dest, const int capacity, const std::string &service) {
@@ -83,11 +97,9 @@ void Station::deleteEdge(Edge *edge) {
 
 /************************* Edge  **************************/
 
-Edge::Edge(Station *origin, Station *dest, const int capacity, const std::string &service) {
-    this->origin = origin;
-    this->dest = dest;
-    this->capacity = capacity;
-    this->service = service;
+Edge::Edge(Station *origin, Station *dest, const int capacity, const std::string &service): origin(origin), dest(dest), capacity(capacity), service(service) {
+    this->reverse = nullptr;
+    this->flow = 0;
 }
 
 Station *Edge::getDest() const {
@@ -104,5 +116,21 @@ int Edge::getCapacity() const {
 
 std::string Edge::getService() const {
     return this->service;
+}
+
+void Edge::setReverse(Edge *reverse) {
+    this->reverse = reverse;
+}
+
+Edge *Edge::getReverse() const {
+    return this->reverse;
+}
+
+void Edge::setFlow(int flow) {
+    this->flow = flow;
+}
+
+int Edge::getFlow() const {
+    return this->flow;
 }
 

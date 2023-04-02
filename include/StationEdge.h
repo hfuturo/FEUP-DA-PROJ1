@@ -13,6 +13,7 @@ class Edge;
 /************************* Station  **************************/
 
 class Station {
+private:
     std::string name;
     std::string district;
     std::string municipality;
@@ -20,6 +21,8 @@ class Station {
     std::string line;
     std::vector<Edge*> adj;
     std::vector<Edge*> incoming;
+    bool visited;
+    Edge* path;
 public:
     Station(const std::string& name, const std::string& district, const std::string& municipality, const std::string& township, const std::string& line);
     std::string getName() const;
@@ -32,21 +35,32 @@ public:
     Edge* addLine(Station* dest, const int capacity, const std::string& service);
     bool removeEdge(std::string name);
     void deleteEdge(Edge* edge);
+    void setVisited(bool vis);
+    bool isVisited() const;
+    void setPath(Edge* path);
+    Edge* getPath() const;
 };
 
 /************************* Edge  **************************/
 
 class Edge {
+private:
     Station* origin;
     Station* dest;
     int capacity;
     std::string service;
+    Edge* reverse;
+    int flow;
 public:
     Edge(Station* origin, Station* dest, const int capacity, const std::string& service);
     Station* getOrigin() const;
     Station* getDest() const;
     int getCapacity() const;
     std::string getService() const;
+    void setReverse(Edge* reverse);
+    Edge* getReverse() const;
+    int getFlow() const;
+    void setFlow(int flow);
 };
 
-#endif //DA_PROJ1_STATIONEDGE_H
+#endif
