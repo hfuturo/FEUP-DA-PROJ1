@@ -21,14 +21,14 @@ public:
     bool addLine(const std::string& origin, const std::string& dest, const int& capacity, const std::string& service);
     Station* findStation(const std::string& name) const;
     bool addBidirectionalLine(const std::string& origin, const std::string& dest, const int& capacity, const std::string& service);
-    bool maxFlow(const std::string& source, const std::string& target);
+    int maxFlow(const std::string& source, const std::string& target);
     bool findAugmentingPath(Station* s, Station* t);
     int findMinResidualAlongPath(Station* s, Station* t);
     void augmentFlowAlongPath(Station* s, Station* t, int f);
     void testAndVisit(std::queue<Station*>& q, Edge* e, Station* w, int residual);
     bool dfs(const std::string& source, const std::string& dest);
     bool dfsVisit(Station* s, const std::string& dest);
-    void print();
+    void fullMaxFlow();
 };
 
 #endif

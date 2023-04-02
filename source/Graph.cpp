@@ -112,12 +112,7 @@ bool Graph::dfs(const std::string &source, const std::string &dest) {
         s->setVisited(false);
     }
 
-    if (dfsVisit(s, dest)) {
-        std::cout << "PATH FOUND" << std::endl;
-        return true;
-    }
-    std::cout << "PATH NOT FOUND" << std::endl;
-    return false;
+    return dfsVisit(s, dest);
 }
 
 bool Graph::dfsVisit(Station *s, const std::string &dest) {
@@ -185,11 +180,13 @@ void Graph::augmentFlowAlongPath(Station *s, Station *t, int f) {
     }
 }
 
-bool Graph::maxFlow(const std::string &source, const std::string &target) {
+int Graph::maxFlow(const std::string &source, const std::string &target) {
     Station* s = findStation(source);
     Station* t = findStation(target);
     if (s == nullptr || t == nullptr || s == t)
         throw std::logic_error("Invalid source and/or target vertex");
+
+    if (!dfs(source, target)) return 0;
 
     // Reset the flows
     for (auto v : stationSet) {
@@ -209,9 +206,7 @@ bool Graph::maxFlow(const std::string &source, const std::string &target) {
         flow += e->getFlow();
     }
 
-    std::cout << flow << std::endl;
-
-    return true;
+    return flow;
 }
 
 void Graph::testAndVisit(std::queue<Station *> &q, Edge *e, Station *w, int residual) {
@@ -219,5 +214,29 @@ void Graph::testAndVisit(std::queue<Station *> &q, Edge *e, Station *w, int resi
         w->setVisited(true);
         w->setPath(e);
         q.push(w);
+    }
+}
+
+void Graph::fullMaxFlow() {
+    int max = INT32_MIN;
+    std::vector<std::pair<std::string, std::string>> res;
+
+    for (auto v : getStationSet()) {
+        for (auto u : getStationSet()) {
+            if (u != v) {
+                int flow = maxFlow(v->getName(), u->getName());
+                if (flow > max) {
+                    max = flow;
+                    res.clear();
+                    res.emplace_back(v->getName(), u->getName());
+                } else if (flow == max) {
+                    res.emplace_back(v->getName(), u->getName());
+                }
+            }
+        }
+    }
+
+    for (auto v : res) {
+        std::cout << v.first << " -> " << v.second << std::endl;
     }
 }
