@@ -52,7 +52,7 @@ Station *Graph::findStation(const std::string &name) const {
     return nullptr;
 }
 
-bool Graph::addLine(const std::string &origin, const std::string &dest, const int &capacity, const std::string &service) {
+bool Graph::addLine(const std::string &origin, const std::string &dest, const double &capacity, const std::string &service) {
     auto s1 = findStation(origin);
     auto s2 = findStation(dest);
     if (s1 == nullptr || s2 == nullptr) {
@@ -62,7 +62,7 @@ bool Graph::addLine(const std::string &origin, const std::string &dest, const in
     return true;
 }
 
-bool Graph::addBidirectionalLine(const std::string &origin, const std::string &dest, const int &capacity, const std::string &service) {
+bool Graph::addBidirectionalLine(const std::string &origin, const std::string &dest, const double &capacity, const std::string &service) {
     auto s1 = findStation(origin);
     auto s2 = findStation(dest);
     if (s1 == nullptr || s2 == nullptr) {
@@ -73,6 +73,26 @@ bool Graph::addBidirectionalLine(const std::string &origin, const std::string &d
     l1->setReverse(l2);
     l2->setReverse(l1);
     return true;
+}
+
+bool Graph::removeStation(const Station *station) {
+    std::vector<Station*> &vs = stationSet;
+    int count = 0;
+    for (auto& v : vs) {
+        if(v->getName() == station->getName()) {
+            for (auto& u : vs) {
+                u->removeEdge(station->getName());
+            }
+
+            v->removeOutgoingEdges();
+            vs.erase(vs.begin() + count);
+            delete v;
+            return true;
+        }
+        count++;
+    }
+
+    return false;
 }
 
 void Graph::readNetwork() {
@@ -90,7 +110,7 @@ void Graph::readNetwork() {
         getline(ss, dest, ',');
         getline(ss, capacity, ',');
         getline(ss, service, ',');
-        addLine(origin, dest, stoi(capacity), service);
+        addBidirectionalLine(origin, dest, std::stod(capacity), service);
     }
 
 }
@@ -149,8 +169,8 @@ bool Graph::findAugmentingPath(Station *s, Station *t) {
     return t->isVisited();
 }
 
-int Graph::findMinResidualAlongPath(Station *s, Station *t) {
-    int f = INT32_MAX;
+double Graph::findMinResidualAlongPath(Station *s, Station *t) {
+    double f = INT32_MAX;
     for (auto v = t; v != s; ) {
         auto e = v->getPath();
         if (e->getDest() == v) {
@@ -165,10 +185,10 @@ int Graph::findMinResidualAlongPath(Station *s, Station *t) {
     return f;
 }
 
-void Graph::augmentFlowAlongPath(Station *s, Station *t, int f) {
+void Graph::augmentFlowAlongPath(Station *s, Station *t, double f) {
     for (auto v = t; v != s; ) {
         auto e = v->getPath();
-        int flow = e->getFlow();
+        double flow = e->getFlow();
         if (e->getDest() == v) {
             e->setFlow(flow + f);
             v = e->getOrigin();
@@ -180,13 +200,14 @@ void Graph::augmentFlowAlongPath(Station *s, Station *t, int f) {
     }
 }
 
-int Graph::maxFlow(const std::string &source, const std::string &target) {
+double Graph::maxFlow(const std::string &source, const std::string &target) {
     Station* s = findStation(source);
     Station* t = findStation(target);
-    if (s == nullptr || t == nullptr || s == t)
-        throw std::logic_error("Invalid source and/or target vertex");
+    if (s == nullptr || t == nullptr || s == t) {
+        return -2;
+    }
 
-    if (!dfs(source, target)) return 0;
+    if (!dfs(source, target)) return -1;
 
     // Reset the flows
     for (auto v : stationSet) {
@@ -196,11 +217,11 @@ int Graph::maxFlow(const std::string &source, const std::string &target) {
     }
     // Loop to find augmentation paths
     while( findAugmentingPath(s, t) ) {
-        int f = findMinResidualAlongPath(s, t);
+        double f = findMinResidualAlongPath(s, t);
         augmentFlowAlongPath(s, t, f);
     }
 
-    int flow = 0;
+    double flow = 0;
 
     for (auto e : t->getIncoming()) {
         flow += e->getFlow();
@@ -209,7 +230,7 @@ int Graph::maxFlow(const std::string &source, const std::string &target) {
     return flow;
 }
 
-void Graph::testAndVisit(std::queue<Station *> &q, Edge *e, Station *w, int residual) {
+void Graph::testAndVisit(std::queue<Station *> &q, Edge *e, Station *w, double residual) {
     if (! w->isVisited() && residual > 0) {
         w->setVisited(true);
         w->setPath(e);
@@ -217,26 +238,133 @@ void Graph::testAndVisit(std::queue<Station *> &q, Edge *e, Station *w, int resi
     }
 }
 
-void Graph::fullMaxFlow() {
-    int max = INT32_MIN;
-    std::vector<std::pair<std::string, std::string>> res;
+//TODO: remover pares "repetidos" (u,v) (v,u) do vetor e melhorar complexidade temporal
+std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullMaxFlow() {
+    std::vector<std::pair<double, std::pair<std::string, std::string>>> res;
+    double max = INT32_MIN;
+    double flow = 0;
 
     for (auto v : getStationSet()) {
         for (auto u : getStationSet()) {
-            if (u != v) {
-                int flow = maxFlow(v->getName(), u->getName());
+            if (v != u) {
+                flow = maxFlow(v->getName(), u->getName());
                 if (flow > max) {
                     max = flow;
                     res.clear();
-                    res.emplace_back(v->getName(), u->getName());
+                    res.push_back({flow, {v->getName(), u->getName()}});
                 } else if (flow == max) {
-                    res.emplace_back(v->getName(), u->getName());
+                    res.push_back({flow, {v->getName(), u->getName()}});
                 }
             }
         }
     }
 
-    for (auto v : res) {
-        std::cout << v.first << " -> " << v.second << std::endl;
+    return res;
+}
+
+std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
+    std::vector<std::pair<std::string, double>> res;
+
+    for (auto v : getStationSet()) {
+        bool exists = false;
+        for (auto p : res) {
+            if (v->getDistrict() == p.first) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
+            res.emplace_back(v->getDistrict(), 0);
+        }
     }
+
+    for (auto v : getStationSet()) {
+        for (auto u : getStationSet()) {
+            if (v != u) {
+                double flow = maxFlow(v->getName(), u->getName());
+                for (auto& p : res) {
+                    if (p.first == u->getDistrict()) {
+                        p.second += flow;
+                    }
+                }
+            }
+        }
+    }
+
+    std::sort(res.begin(), res.end(), [](std::pair<std::string, double>& p1, std::pair<std::string, double>& p2) {return p1.second < p2.second;});
+
+    for (auto v : res) {
+        std::cout << v.first << " " << v.second << std::endl;
+    }
+
+    if (n > res.size()) {
+        return res;
+    }
+
+    std::vector<std::pair<std::string, double>> final(res.begin(), res.begin() + n);
+    return final;
+}
+
+std::vector<std::pair<std::string, double>> Graph::topMunicipalities(int n) {
+    std::vector<std::pair<std::string, double>> res;
+
+    for (auto v : getStationSet()) {
+        bool exists = false;
+        for (auto p : res) {
+            if (v->getMunicipality() == p.first) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
+            res.emplace_back(v->getMunicipality(), 0);
+        }
+    }
+
+    for (auto v : getStationSet()) {
+        for (auto u : getStationSet()) {
+            if (v != u) {
+                double flow = maxFlow(v->getName(), u->getName());
+                for (auto& p : res) {
+                    if (p.first == u->getMunicipality()) {
+                        p.second += flow;
+                    }
+                }
+            }
+        }
+    }
+
+    std::sort(res.begin(), res.end(), [](std::pair<std::string, double>& p1, std::pair<std::string, double>& p2) {return p1.second < p2.second;});
+
+    if (n > res.size()) {
+        return res;
+    }
+
+    std::vector<std::pair<std::string, double>> final(res.begin(), res.begin() + n);
+    return final;
+}
+
+double Graph::maxFlowGridToStation(const std::string &dest) {
+    Station* target = findStation(dest);
+    if (target == nullptr) {
+        return -1;
+    }
+
+    if(!addStation("super source", "filler", "filler", "filler", "filler")) return -2;
+
+    for (auto& v : getStationSet()) {
+        if (v != target && v->getAdj().size() == 1) {
+            addBidirectionalLine("super source", v->getName(), INT32_MAX, "filler");
+        }
+    }
+
+    double flow = maxFlow("super source", target->getName());
+
+    auto supersource = findStation("super source");
+
+    removeStation(supersource);
+
+    return flow;
 }

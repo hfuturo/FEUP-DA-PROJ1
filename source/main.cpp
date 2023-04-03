@@ -1,11 +1,7 @@
-#include "../include/Graph.h"
-#include <iostream>
+#include "../include/UserInterface.h"
 
 int main() {
-    Graph graph{};
-    graph.fill();
-   // graph.dfs("Porto Campanhã", "Valongo-Vouga");
-    //std::cout << graph.maxFlow("Porto Campanhã", "Viana do Castelo") << std::endl;
-    graph.fullMaxFlow();
+    UserInterface ui{};
+    ui.showMenu();
     return 0;
 }

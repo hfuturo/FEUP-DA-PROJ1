@@ -2,6 +2,8 @@
 // Created by Henrique Silva on 19/03/2023.
 //
 
+#include <iostream>
+
 #include "../include/StationEdge.h"
 
 /************************* Station  **************************/
@@ -56,7 +58,7 @@ void Station::setPath(Edge *path) {
     this->path = path;
 }
 
-Edge* Station::addLine(Station *dest, const int capacity, const std::string &service) {
+Edge* Station::addLine(Station *dest, const double capacity, const std::string &service) {
     Edge* edge = new Edge(this, dest, capacity, service);
     adj.push_back(edge);
     dest->incoming.push_back(edge);
@@ -95,9 +97,18 @@ void Station::deleteEdge(Edge *edge) {
     delete edge;
 }
 
+void Station::removeOutgoingEdges() {
+    auto it = adj.begin();
+    while (it != adj.end()) {
+        Edge *edge = *it;
+        it = adj.erase(it);
+        deleteEdge(edge);
+    }
+}
+
 /************************* Edge  **************************/
 
-Edge::Edge(Station *origin, Station *dest, const int capacity, const std::string &service): origin(origin), dest(dest), capacity(capacity), service(service) {
+Edge::Edge(Station *origin, Station *dest, const double capacity, const std::string &service): origin(origin), dest(dest), capacity(capacity), service(service) {
     this->reverse = nullptr;
     this->flow = 0;
 }
@@ -110,7 +121,7 @@ Station *Edge::getOrigin() const {
     return this->origin;
 }
 
-int Edge::getCapacity() const {
+double Edge::getCapacity() const {
     return this->capacity;
 }
 
@@ -126,11 +137,11 @@ Edge *Edge::getReverse() const {
     return this->reverse;
 }
 
-void Edge::setFlow(int flow) {
+void Edge::setFlow(double flow) {
     this->flow = flow;
 }
 
-int Edge::getFlow() const {
+double Edge::getFlow() const {
     return this->flow;
 }
 

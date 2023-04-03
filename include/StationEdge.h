@@ -32,8 +32,9 @@ public:
     std::string getLine() const;
     std::vector<Edge*> getAdj() const;
     std::vector<Edge*> getIncoming() const;
-    Edge* addLine(Station* dest, const int capacity, const std::string& service);
+    Edge* addLine(Station* dest, const double capacity, const std::string& service);
     bool removeEdge(std::string name);
+    void removeOutgoingEdges();
     void deleteEdge(Edge* edge);
     void setVisited(bool vis);
     bool isVisited() const;
@@ -47,20 +48,20 @@ class Edge {
 private:
     Station* origin;
     Station* dest;
-    int capacity;
+    double capacity;
     std::string service;
     Edge* reverse;
-    int flow;
+    double flow;
 public:
-    Edge(Station* origin, Station* dest, const int capacity, const std::string& service);
+    Edge(Station* origin, Station* dest, const double capacity, const std::string& service);
     Station* getOrigin() const;
     Station* getDest() const;
-    int getCapacity() const;
+    double getCapacity() const;
     std::string getService() const;
     void setReverse(Edge* reverse);
     Edge* getReverse() const;
-    int getFlow() const;
-    void setFlow(int flow);
+    double getFlow() const;
+    void setFlow(double flow);
 };
 
 #endif

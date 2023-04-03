@@ -3,4 +3,4 @@ project(DA_PROJ1)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(project source/main.cpp include/Graph.h source/Graph.cpp include/StationEdge.h source/StationEdge.cpp)
+add_executable(project source/main.cpp include/Graph.h source/Graph.cpp include/StationEdge.h source/StationEdge.cpp include/UserInterface.h source/UserInterface.cpp)
