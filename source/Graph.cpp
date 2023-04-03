@@ -294,16 +294,11 @@ std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
 
     std::sort(res.begin(), res.end(), [](std::pair<std::string, double>& p1, std::pair<std::string, double>& p2) {return p1.second < p2.second;});
 
-    for (auto v : res) {
-        std::cout << v.first << " " << v.second << std::endl;
-    }
-
     if (n > res.size()) {
         return res;
     }
 
-    std::vector<std::pair<std::string, double>> final(res.begin(), res.begin() + n);
-    return final;
+    return {res.begin(), res.begin() + n};
 }
 
 std::vector<std::pair<std::string, double>> Graph::topMunicipalities(int n) {
@@ -342,8 +337,7 @@ std::vector<std::pair<std::string, double>> Graph::topMunicipalities(int n) {
         return res;
     }
 
-    std::vector<std::pair<std::string, double>> final(res.begin(), res.begin() + n);
-    return final;
+    return {res.begin(), res.begin() + n};
 }
 
 double Graph::maxFlowGridToStation(const std::string &dest) {

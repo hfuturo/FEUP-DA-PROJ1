@@ -14,12 +14,12 @@ const std::string STATIONS_FILE_PATH = "../dataset/stations.csv";
 const std::string NETWORK_FILE_PATH = "../dataset/network.csv";
 
 /**
- * @brief The cost of a standard train per train and per segment
+ * @brief The cost of a standard train per train and per segment.
  */
 const int STANDARD_COST = 2;
 
 /**
- * @brief The cost of a alfa pendular train per train and per segment
+ * @brief The cost of a alfa pendular train per train and per segment.
  */
 const int ALFA_PENDULAR_COST = 4;
 
