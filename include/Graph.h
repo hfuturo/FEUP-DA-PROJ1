@@ -133,7 +133,8 @@ public:
     double maxFlowGridToStation(const std::string& dest);
     double maxFlowMinCost(const std::string& origin, const std::string& dest);
     double maxFlowSubGraph(const std::vector<std::pair<std::string, std::string>>& linesToRemove, const std::string& origin, const std::string& dest);
-    void addExistingEdge(const Edge* edge);
+    double topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n);
+    void fullMaxFlowOrdered(std::map<Station*, double>& map);
 };
 
 #endif

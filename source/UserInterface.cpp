@@ -198,11 +198,20 @@ void UserInterface::showMenu() {
                         double flow = graph.maxFlowSubGraph(linesToBeRemoved, origin, target);
 
                         if (flow == -1) {
-                            std::cout << "Invalid input." << std::endl;
+                            std::cout << "There is no path between " << origin << " and " << target << std::endl;
                             break;
+                        }
+                        if (flow == -2) {
+                            std::cout << "Invalid input. Either one of the stations do not exist or both stations are the same." << std::endl;
                         }
 
                         std::cout << "The maximum number of trains that can simultaneously arrive at " << origin << " from " << target << " is " << flow << std::endl;
+
+                        break;
+                    }
+
+                    case '2': {
+
                     }
                 }
                 break;

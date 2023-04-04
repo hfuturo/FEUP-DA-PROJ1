@@ -61,11 +61,16 @@ private:
      * @brief A path that contains the edge taken to get to this station. Used for maxFlow.
      */
     Edge* path;
+
+    /**
+     * @brief The maximum number of trains that can simultaneously arrive at this station.
+     */
+    double maximumFlow;
 public:
     /**
      * @brief A constructor that initializes a station with a name, district, municipality, township and line.
      *
-     * @note This constructor initializes path as nullptr and visited as false.
+     * @note This constructor initializes path as nullptr, visited as false and maximumFlow as 0.
      *
      * @param name The name of the station.
      * @param district The district where the station belongs.
@@ -195,7 +200,20 @@ public:
      */
     Edge* getPath() const;
 
-    void addExistingEdge(Edge* edge);
+    /**
+     * @brief Sets the maximum flow of this station.
+     *
+     * @param maximumFlow The value of the maximum flow.
+     */
+    void setMaximumFlow(double maximumFlow);
+
+
+    /**
+     * @brief Gets the maximum flow of this station.
+     *
+     * @return The maximum flow of this station.
+     */
+    double getMaximumFlow() const;
 };
 
 /************************* Edge  **************************/

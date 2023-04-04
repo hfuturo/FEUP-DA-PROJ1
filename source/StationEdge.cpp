@@ -12,6 +12,7 @@ Station::Station(const std::string &name, const std::string &district, const std
     name(name), district(district), municipality(municipality), township(township), line(line) {
     this->setVisited(false);
     this->setPath(nullptr);
+    this->setMaximumFlow(0);
 }
 
 std::string Station::getDistrict() const {
@@ -58,15 +59,19 @@ void Station::setPath(Edge *path) {
     this->path = path;
 }
 
+double Station::getMaximumFlow() const {
+    return this->maximumFlow;
+}
+
+void Station::setMaximumFlow(double maximumFlow) {
+    this->maximumFlow = maximumFlow;
+}
+
 Edge* Station::addLine(Station *dest, const double capacity, const std::string &service) {
     Edge* edge = new Edge(this, dest, capacity, service);
     adj.push_back(edge);
     dest->incoming.push_back(edge);
     return edge;
-}
-
-void Station::addExistingEdge(Edge *edge) {
-    if (edge == nullptr) return;
 }
 
 bool Station::removeEdge(std::string name) {
