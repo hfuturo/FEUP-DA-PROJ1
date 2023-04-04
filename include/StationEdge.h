@@ -150,6 +150,15 @@ public:
     void removeOutgoingEdges();
 
     /**
+     * @brief Removes and stores the edge that leaves this station and arrives the destination station.
+     *
+     * @param dest The destination station.
+     * @return The Edge if it exists.
+     * @return Null pointer if it does not exist.
+     */
+    Edge* removeAndStoreEdge(Station* dest);
+
+    /**
      * @brief Deletes an edge (line) from the destination station.
      *
      * @param edge The edge that is going to get deleted.
@@ -185,6 +194,8 @@ public:
      * @return Null pointer if the edge does not exist.
      */
     Edge* getPath() const;
+
+    void addExistingEdge(Edge* edge);
 };
 
 /************************* Edge  **************************/

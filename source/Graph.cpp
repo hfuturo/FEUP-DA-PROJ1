@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <queue>
+#include <unordered_map>
 
 #include "../include/Graph.h"
 #include "../include/constants.h"
@@ -359,6 +360,111 @@ double Graph::maxFlowGridToStation(const std::string &dest) {
     auto supersource = findStation("super source");
 
     removeStation(supersource);
+
+    return flow;
+}
+
+double Graph::maxFlowSubGraph(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const std::string& origin, const std::string& dest) {
+    std::vector<std::pair<Station*, Station*>> stations;
+    std::vector<std::pair<std::pair<Station*, Station*>, std::pair<double, std::string>>> removedEdges;
+
+    Station* source = findStation(origin);
+    Station* sink = findStation(dest);
+
+    if (source == nullptr || sink == nullptr || source == sink) return -1;
+
+    for (auto& name : linesToRemove) {
+        Station* station1 = findStation(name.first);
+        Station* station2 = findStation(name.second);
+        if (station1 == nullptr || station2 == nullptr) return -2;
+        stations.emplace_back(station1, station2);
+    }
+
+/*    for (auto& s : stations) {
+        auto edges1 = s.first->getAdj();
+        auto out1 = s.first->getIncoming();
+        auto edges2 = s.second->getAdj();
+        auto out2 = s.second->getIncoming();
+
+        std::cout << s.first->getName() << std::endl;
+        std::cout << "OUT" << std::endl;
+        for (auto& e : edges1) {
+            std::cout << "\t" << e->getOrigin()->getName() << " " << e->getDest()->getName() << " " << e->getCapacity() << " " << e->getService();
+        }
+
+        std::cout << "IN" << std::endl;
+        for (auto& e : out1) {
+            std::cout << "\t" << e->getOrigin()->getName() << " " << e->getDest()->getName() << " " << e->getCapacity() << " " << e->getService();
+        }
+
+        std::cout << s.second->getName() << std::endl;
+        std::cout << "OUT" << std::endl;
+        for (auto& e : edges2) {
+            std::cout << "\t" << e->getOrigin()->getName() << " " << e->getDest()->getName() << " " << e->getCapacity() << " " << e->getService();
+        }
+
+        std::cout << "IN" << std::endl;
+        for (auto& e : edges1) {
+            std::cout << "\t" << e->getOrigin()->getName() << " " << e->getDest()->getName() << " " << e->getCapacity() << " " << e->getService();
+        }
+
+    } */
+
+    for (auto s : stations) {
+        std::cout << s.first->getName() << " " << s.first->getAdj().size() << " " <<  s.first->getIncoming().size() << std::endl;
+        std::cout << s.second->getName() << " " << s.second->getAdj().size() << " " << s.second->getIncoming().size() << std::endl;
+    }
+
+    for (auto& p : stations) {
+        Edge* edge = p.first->removeAndStoreEdge(p.second);
+        if (edge == nullptr) continue;
+        removedEdges.push_back({{p.first, p.second}, {edge->getCapacity(), edge->getService()}});
+        p.second->removeAndStoreEdge(p.first);
+    }
+
+    for (auto s : stations) {
+        std::cout << s.first->getName() << " " << s.first->getAdj().size() <<" " <<  s.first->getIncoming().size() << std::endl;
+        std::cout << s.second->getName() << " " << s.second->getAdj().size() << " " << s.second->getIncoming().size() << std::endl;
+    }
+
+    double flow = maxFlow(origin, dest);
+
+ /*   for (auto& p : removedEdges) {
+        addBidirectionalLine(p.first.first->getName(), p.first.second->getName(), p.second.first, p.second.second);
+    } */
+
+ /*   for (auto& s : stations) {
+        auto edges1 = s.first->getAdj();
+        auto out1 = s.first->getIncoming();
+        auto edges2 = s.second->getAdj();
+        auto out2 = s.second->getIncoming();
+
+        std::cout << s.first->getName() << std::endl;
+        std::cout << "OUT" << std::endl;
+        for (auto& e : edges1) {
+            std::cout << "\t" << e->getOrigin()->getName() << " " << e->getDest()->getName() << " " << e->getCapacity() << " " << e->getService();
+        }
+
+        std::cout << "IN" << std::endl;
+        for (auto& e : out1) {
+            std::cout << "\t" << e->getOrigin()->getName() << " " << e->getDest()->getName() << " " << e->getCapacity() << " " << e->getService();
+        }
+
+        std::cout << s.second->getName() << std::endl;
+        std::cout << "OUT" << std::endl;
+        for (auto& e : edges2) {
+            std::cout << "\t" << e->getOrigin()->getName() << " " << e->getDest()->getName() << " " << e->getCapacity() << " " << e->getService();
+        }
+
+        std::cout << "IN" << std::endl;
+        for (auto& e : edges1) {
+            std::cout << "\t" << e->getOrigin()->getName() << " " << e->getDest()->getName() << " " << e->getCapacity() << " " << e->getService();
+        }
+
+    } */
+
+    if (flow == -2) return -2;
+    if (flow == -1) return -1;
 
     return flow;
 }

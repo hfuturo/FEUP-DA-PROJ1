@@ -65,6 +65,10 @@ Edge* Station::addLine(Station *dest, const double capacity, const std::string &
     return edge;
 }
 
+void Station::addExistingEdge(Edge *edge) {
+    if (edge == nullptr) return;
+}
+
 bool Station::removeEdge(std::string name) {
     bool removeEdge = false;
     auto it = adj.begin();
@@ -104,6 +108,32 @@ void Station::removeOutgoingEdges() {
         it = adj.erase(it);
         deleteEdge(edge);
     }
+}
+
+Edge *Station::removeAndStoreEdge(Station *dest) {
+    if (dest == nullptr) return nullptr;
+    bool exists = false;
+    Edge* edge;
+    auto it = this->adj.begin();
+    while (it != this->adj.end()) {
+        if ((*it)->getDest()->getName() == dest->getName()) {
+            edge = *it;
+            this->adj.erase(it);
+            exists = true;
+            break;
+        }
+        it++;
+    }
+    if (!exists) return nullptr;
+    it = this->incoming.begin();
+    while (it != this->incoming.end()) {
+        if ((*it)->getOrigin()->getName() == dest->getName()) {
+            this->incoming.erase(it);
+            break;
+        }
+        it++;
+    }
+    return edge;
 }
 
 /************************* Edge  **************************/

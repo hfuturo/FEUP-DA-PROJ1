@@ -131,6 +131,9 @@ public:
      * @return
      */
     double maxFlowGridToStation(const std::string& dest);
+    double maxFlowMinCost(const std::string& origin, const std::string& dest);
+    double maxFlowSubGraph(const std::vector<std::pair<std::string, std::string>>& linesToRemove, const std::string& origin, const std::string& dest);
+    void addExistingEdge(const Edge* edge);
 };
 
 #endif

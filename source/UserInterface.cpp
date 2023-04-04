@@ -17,10 +17,13 @@ void UserInterface::showMenu() {
         std::cout << "\t\t\t\t Menu \t" << std::endl;
         std::cout << "======================================" << std::endl;
         std::cout << "(1) Gestao do numero de comboios." << std::endl;
+        std::cout << "(2)" << std::endl;
+        std::cout << "(3) Reliability and Sensitivity to Line Failures" << std::endl;
         std::cout << "Enter 'Q' or 'q' to quit." << std::endl;
 
         std::cin >> userchoice;
         std::cout << std::endl;
+        std::cin.ignore(); //testing this
 
         switch (userchoice) {
             case 'q':
@@ -36,7 +39,6 @@ void UserInterface::showMenu() {
 
                 std::cin >> userchoice2;
                 std::cout << std::endl;
-
 
                 switch (userchoice2) {
                     case '1': {
@@ -131,6 +133,79 @@ void UserInterface::showMenu() {
                         break;
                     }
                 }
+                break;
+            }
+
+            case '3': {
+                char userchoice2;
+                std::vector<std::pair<std::string, std::string>> linesToBeRemoved;
+
+                std::cout << "Enter the name of the stations that you want the lines to be removed (Press 'Q' to exit)" << std::endl;
+
+                while (true) {
+                    std::string s, t;
+                    std::getline(std::cin, s);
+                    if (s.size() == 1 && (s.at(0) == 'q' || s.at(0) == 'Q')) break;
+                    if (s.empty()) {
+                        std::cout << "The name of the station can not be empty" << std::endl;
+                        continue;
+                    }
+
+                    std::getline(std::cin, t);
+                    if (t.size() == 1 && (t.at(0) == 'q' || t.at(0) == 'Q')) break;
+                    linesToBeRemoved.emplace_back(s,t);
+                }
+
+                if (linesToBeRemoved.empty() || linesToBeRemoved.size() < 2) {
+                    std::cout << "You need to give at least 2 stations." << std::endl;
+                    break;
+                }
+
+                std::cout << "(1) Calculate the maximum number of trains that can simultaneously travel between two specific stations in a network of reduced connectivity";
+                std::cout << std::endl;
+                std::cout << "(2) Stations most affected" << std::endl;
+
+                std::cin >> userchoice2;
+                std::cin.ignore();
+
+                switch (userchoice2) {
+                    case '1': {
+                        std::string origin, target;
+                        std::cout << "** Maximum number of trains that can simultaneously travel between two specific stations in a network of reduced connectivity **";
+                        std::cout << std::endl;
+                        //std::cin.ignore();
+
+                        std::cout << "Insert the name of the first station: ";
+                        while (true) {
+                            std::getline(std::cin, origin);
+                            if (origin.empty()) {
+                                std::cout << "The name can not be empty." << std::endl;
+                                continue;
+                            }
+                            break;
+                        }
+
+                        std::cout << "Insert the name of the second station: ";
+                        while (true) {
+                            std::getline(std::cin, target);
+                            if (target.empty()) {
+                                std::cout << "The name can not be empty." << std::endl;
+                                continue;
+                            }
+                            break;
+                        }
+
+                        double flow = graph.maxFlowSubGraph(linesToBeRemoved, origin, target);
+
+                        if (flow == -1) {
+                            std::cout << "Invalid input." << std::endl;
+                            break;
+                        }
+
+                        std::cout << "The maximum number of trains that can simultaneously arrive at " << origin << " from " << target << " is " << flow << std::endl;
+                    }
+                }
+                break;
             }
         }
     }
