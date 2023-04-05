@@ -289,7 +289,7 @@ void UserInterface::showMenu() {
                             std::cin.ignore();
                         }
 
-                        std::cout << "Loading...\n\n";
+                        std::cout << "\nLoading...\n\n";
 
                         auto res = graph.topStationsAffected(linesToBeRemoved, n, error);
 

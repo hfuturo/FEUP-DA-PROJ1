@@ -401,20 +401,9 @@ double Graph::maxFlowSubGraph(const std::vector<std::pair<std::string, std::stri
 
 std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n, bool& error) {
     std::map<std::pair<Station*,Station*>, double> map;
-
-    for (int i = 0; i < getStationSet().size() - 1; i++) {
-        Station* u = getStationSet().at(i);
-        for (int j = i+1; j < getStationSet().size(); j++) {
-            Station* v = getStationSet().at(j);
-            double flow = maxFlow(u->getName(), v->getName());
-            map.insert({{u, v}, flow});
-            map.insert({{v, u}, flow});
-        }
-    }
-
     std::vector<std::pair<Station*, Station*>> stations;
-    std::vector<std::pair<std::pair<Station*, Station*>, std::pair<double, std::string>>> removedEdges;
     std::vector<std::vector<std::pair<Station*, double>>> res;
+    std::vector<std::pair<std::pair<Station*, Station*>, std::pair<double, std::string>>> removedEdges;
 
     for (auto& name : linesToRemove) {
         Station* station1 = findStation(name.first);
@@ -424,6 +413,16 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
             return res;
         }
         stations.emplace_back(station1, station2);
+    }
+
+    for (int i = 0; i < getStationSet().size() - 1; i++) {
+        Station* u = getStationSet().at(i);
+        for (int j = i+1; j < getStationSet().size(); j++) {
+            Station* v = getStationSet().at(j);
+            double flow = maxFlow(u->getName(), v->getName());
+            map.insert({{u, v}, flow});
+            map.insert({{v, u}, flow});
+        }
     }
 
     for (auto& p : stations) {
@@ -465,7 +464,6 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
     return res;
 }
 
-/*
 double Graph::maxFlowMinCost(const std::string &origin, const std::string &dest) {
     auto source = findStation(origin);
     auto target = findStation(dest);
@@ -474,11 +472,11 @@ double Graph::maxFlowMinCost(const std::string &origin, const std::string &dest)
 
     if (!dfs(origin, dest)) return -1;
 
-    dijkstra(source, target);
+ //   dijkstra(source, target);
 }
 
 
-void Graph::dijkstra(Station* origin, Station* dest) {
+void Graph::dijkstra(Station* origin, Station* dest, const std::string& service) {
     for (auto& s : getStationSet()) {
         s->setVisited(false);
         s->setPath(nullptr);
@@ -488,8 +486,6 @@ void Graph::dijkstra(Station* origin, Station* dest) {
     origin->setCost(0);
 
     MutablePriorityQueue<Station> q;
-    std::string service;
-    int count = 0;
 
     for (auto& v : getStationSet()) {
         q.insert(v);
@@ -499,9 +495,17 @@ void Graph::dijkstra(Station* origin, Station* dest) {
         auto u = q.extractMin();
         u->setVisited(true);
 
+        if (u == dest) return;
+
         for (auto& e : u->getAdj()) {
-            Station* neighbor = e->getDest();
-            if (!neighbor->isVisited() && )
+            if (e->getService() == service) {
+                Station* neighbor = e->getDest();
+                if (!neighbor->isVisited() && e->getCapacity() + u->getCost() < neighbor->getCost()) {
+                    neighbor->setPath(e);
+                    neighbor->setCost(e->getCapacity() + u->getCost());
+                    q.decreaseKey(neighbor);
+                }
+            }
         }
     }
-} */
+}
