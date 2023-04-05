@@ -396,11 +396,10 @@ double Graph::maxFlowSubGraph(const std::vector<std::pair<std::string, std::stri
     if (flow == -2) return -2;
     if (flow == -1) return -1;
 
-
     return flow;
 }
 
-std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n) {
+std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n, bool& error) {
     std::map<std::pair<Station*,Station*>, double> map;
 
     for (int i = 0; i < getStationSet().size() - 1; i++) {
@@ -420,7 +419,10 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
     for (auto& name : linesToRemove) {
         Station* station1 = findStation(name.first);
         Station* station2 = findStation(name.second);
-        if (station1 == nullptr || station2 == nullptr) return res;
+        if (station1 == nullptr || station2 == nullptr) {
+            error = true;
+            return res;
+        }
         stations.emplace_back(station1, station2);
     }
 

@@ -16,10 +16,10 @@ void UserInterface::showMenu() {
         std::cout << "======================================" << std::endl;
         std::cout << "\t\t\t\t Menu \t" << std::endl;
         std::cout << "======================================" << std::endl;
-        std::cout << "(1) Gestao do numero de comboios." << std::endl;
-        std::cout << "(2)" << std::endl;
+        std::cout << "(1) Basic Service Metrics" << std::endl;
+        std::cout << "(2) Operation Cost Optimization" << std::endl;
         std::cout << "(3) Reliability and Sensitivity to Line Failures" << std::endl;
-        std::cout << "Enter 'Q' or 'q' to quit." << std::endl;
+        std::cout << "(Q) Quit" << std::endl;
 
         std::cin >> userchoice;
         std::cout << std::endl;
@@ -32,37 +32,43 @@ void UserInterface::showMenu() {
             case '1': {
                 char userchoice2;
 
+                std::cout << "*** Basic Service Metrics ***\n\n";
+
                 std::cout << "(1) Maximum number of trains between two stations." << std::endl;
                 std::cout << "(2) See what stations require the most amount of trains." << std::endl;
                 std::cout << "(3) See which locations (district or municipality) require larger budgets." << std::endl;
                 std::cout << "(4) See how many trains can simultaneously arrive at a station (using entire railway grid)." << std::endl;
 
+                std::cout << "\nInsert the option number you want to select." <<std::endl;
                 std::cin >> userchoice2;
                 std::cout << std::endl;
 
                 switch (userchoice2) {
                     case '1': {
                         std::string station1, station2;
-                        std::cout << "** Maximum number of trains between two stations **" << std::endl << std::endl << std::endl;
+                        std::cout << "** Maximum number of trains between two stations **\n\n";
                         std::cout << "Enter the name of the first station: ";
                         std::cin.ignore();
                         std::getline(std::cin, station1);
                         std::cout << "Enter the name of the second station: ";
                         std::getline(std::cin, station2);
+                        std::cout << std::endl;
                         double flow = graph.maxFlow(station1, station2);
-                        if (flow == -2) std::cout << "At least one of the stations does not exist. Make sure both stations are different and exist." << std::endl;
-                        else if (flow == -1) std::cout << "There is no path between " << station1 << " to " << station2 << std::endl;
-                        else std::cout << "From " << station1 << " to " << station2 << " can travel " << flow << " trains" << std::endl;
+                        if (flow == -2) std::cout << "Invalid Input. Make sure both stations exist and that they are different.\n\n";
+                        else if (flow == -1) std::cout << "There is no path between " << station1 << " to " << station2 << std::endl << std::endl;
+                        else std::cout << "From " << station1 << " to " << station2 << " can travel " << flow << " trains.\n\n";
                         break;
                     }
 
                     case '2': {
-                        std::cout << "** See what stations require the most amount of trains **" << std::endl << std::endl << std::endl;
+                        std::cout << "** See what stations require the most amount of trains **\n\n";
+                        std::cout << "Loading...\n\n";
                         std::vector<std::pair<double, std::pair<std::string, std::string>>> res = graph.fullMaxFlow();
                         std::cout << "The stations that require the most amount of trains when taking full advantage of the network capacity are: " << std::endl;
-                        for (auto p: res) {
+                        for (auto& p: res) {
                             std::cout << "\t" << p.second.first << " to " << p.second.second << std::endl;
                         }
+                        std::cout << std::endl;
                         break;
                     }
 
@@ -88,6 +94,9 @@ void UserInterface::showMenu() {
                             std::cout << "Invalid Input. The input must be a number between 1 and 2." << std::endl;
                         }
 
+                        std::cout << std::endl;
+
+                        std::cout << "Loading...\n\n";
                         switch (location) {
 
                             case '1': {
@@ -114,24 +123,49 @@ void UserInterface::showMenu() {
                             std::cout << "\t" <<v.first << std::endl;
                         }
 
+                        std::cout << std::endl;
+
                         break;
                     }
 
                     case '4': {
                         std::string station;
-                        std::cout << "** See how many trains can simultaneously arrive at a station (using entire railway grid) **" << std::endl;
+                        std::cout << "** See how many trains can simultaneously arrive at a station (using entire railway grid) **" << std::endl << std::endl;
                         std::cin.ignore();
-                        std::getline(std::cin, station);
-                        if (station.empty()) {
-                            std::cout << "Invalid Input. The station can not be empty." << std::endl;
-                            break;
+                        std::cout << "Insert the name of the station: ";
+                        while (true) {
+                            std::getline(std::cin, station);
+                            if (!station.empty()) {
+                                break;
+                            }
+                            std::cout << "\nInvalid Input. The station can not be empty.\n" << std::endl;
                         }
                         double flow = graph.maxFlowGridToStation(station);
 
-                        std::cout << "The maximum number of trains that can simultaneously arrive at " << station << " is " << flow << std::endl;
+                        std::cout << "\nThe maximum number of trains that can simultaneously arrive at " << station << " is " << flow << std::endl << std::endl;
 
                         break;
                     }
+                }
+                break;
+            }
+
+            case '2': {
+                std::string origin, target;
+                while (true) {
+                    std::cout << "Insert the name of the first station: ";
+                    while (true) {
+                        std::getline(std::cin, origin);
+                        if (!origin.empty()) break;
+                        std::cout << "The station can not be empty." << std::endl;
+                    }
+                    std::cout << "Insert the name of the second station: ";
+                    while(true) {
+                        std::getline(std::cin, target);
+                        if (!target.empty()) break;
+                        std::cout << "The station can not be empty." << std::endl;
+                    }
+                    if (origin != target) break;
                 }
                 break;
             }
@@ -139,98 +173,150 @@ void UserInterface::showMenu() {
             case '3': {
                 char userchoice2;
                 std::vector<std::pair<std::string, std::string>> linesToBeRemoved;
-
-                std::cout << "Enter the name of the stations that you want the lines to be removed (Press 'Q' to exit)" << std::endl;
+                std::cout << "*** Reliability and Sensitivity to Line Failures ***\n\n";
+                std::cout << "Enter the name of the stations you want the lines between them to be removed.\n";
+                std::cout << "(You need to enter stations in PAIRS OF TWO!)\n\n";
 
                 while (true) {
                     std::string s, t;
-                    std::getline(std::cin, s);
-                    if (s.size() == 1 && (s.at(0) == 'q' || s.at(0) == 'Q')) break;
-                    if (s.empty()) {
-                        std::cout << "The name of the station can not be empty" << std::endl;
-                        continue;
+                    bool exit = false;
+                    while (true) {
+                        std::cout << "Enter the name of the first station. (Press 'Q' to exit.): ";
+                        std::getline(std::cin, s);
+                        if (s.empty()) {
+                            std::cout << "\nThe station can not be empty.\n\n";
+                            continue;
+                        }
+                        if (s.size() == 1 && (s.at(0) == 'q' || s.at(0) == 'Q')) {
+                            exit = true;
+                        }
+                        break;
                     }
 
-                    std::getline(std::cin, t);
-                    if (t.size() == 1 && (t.at(0) == 'q' || t.at(0) == 'Q')) break;
+                    if (exit) {
+                        if (linesToBeRemoved.empty()) {
+                            std::cout << "\nYou need to enter at least one pair of stations.\n\n";
+                            continue;
+                        }
+                        else
+                            break;
+                    }
+
+                    while (true) {
+                        std::cout << "Enter the name of the second station: ";
+                        std::getline(std::cin, t);
+                        if (t.empty()) {
+                            std::cout << "\nThe station can not be empty.\n\n";
+                            continue;
+                        }
+                        if (t.size() == 1 && (t.at(0) == 'q' || t.at(0) == 'Q')) {
+                            std::cout << "\nYou can not leave. You need to enter one more station.\n";
+                            std::cout << "Remember that you need to add stations in pairs of two.\n\n";
+                            continue;
+                        }
+                        break;
+                    }
+                    std::cout << std::endl;
                     linesToBeRemoved.emplace_back(s,t);
                 }
 
-                if (linesToBeRemoved.empty()) {
-                    std::cout << "You need to give at least 2 stations." << std::endl;
-                    break;
-                }
-
-                std::cout << "(1) Calculate the maximum number of trains that can simultaneously travel between two specific stations in a network of reduced connectivity";
+                std::cout << "\n(1) Calculate the maximum number of trains that can simultaneously travel between two specific stations in a network of reduced connectivity";
                 std::cout << std::endl;
                 std::cout << "(2) Stations most affected" << std::endl;
 
+                std::cout << "\nInsert the option number of the option you want to select.\n";
                 std::cin >> userchoice2;
                 std::cin.ignore();
-
+                std::cout << std::endl;
                 switch (userchoice2) {
                     case '1': {
                         std::string origin, target;
-                        std::cout << "** Maximum number of trains that can simultaneously travel between two specific stations in a network of reduced connectivity **";
+                        std::cout << "** Maximum number of trains that can simultaneously travel between two specific stations in a network of reduced connectivity **\n";
                         std::cout << std::endl;
                         //std::cin.ignore();
 
-                        std::cout << "Insert the name of the first station: ";
                         while (true) {
+                            std::cout << "Insert the name of the first station: ";
                             std::getline(std::cin, origin);
                             if (origin.empty()) {
-                                std::cout << "The name can not be empty." << std::endl;
+                                std::cout << "\nThe name can not be empty.\n\n";
                                 continue;
                             }
                             break;
                         }
 
-                        std::cout << "Insert the name of the second station: ";
                         while (true) {
+                            std::cout << "Insert the name of the second station: ";
                             std::getline(std::cin, target);
                             if (target.empty()) {
-                                std::cout << "The name can not be empty." << std::endl;
+                                std::cout << "\nThe name can not be empty.\n\n";
                                 continue;
                             }
                             break;
                         }
+
+                        std::cout << std::endl;
 
                         double flow = graph.maxFlowSubGraph(linesToBeRemoved, origin, target);
 
                         if (flow == -1) {
-                            std::cout << "There is no path between " << origin << " and " << target << std::endl;
+                            std::cout << "There is no path between " << origin << " and " << target << std::endl << std::endl;
                             break;
                         }
                         if (flow == -2) {
-                            std::cout << "Invalid input. Either one of the stations do not exist or both stations are the same." << std::endl;
+                            std::cout << "Invalid input. Either one of the stations do not exist or both stations are the same.\n\n";
+                            break;
                         }
 
                         std::cout << "The maximum number of trains that can simultaneously arrive at " << origin << " from " << target << " is " << flow << std::endl;
+                        std::cout << std::endl;
 
                         break;
                     }
 
                     case '2': {
                         int n;
-                        std::cout << "Insert the number os stations: ";
+                        bool error;
 
                         while (true) {
+                            std::cout << "Insert the number os stations: ";
                             std::cin >> n;
-                            if (n <= 0) {
-                                std::cout << "The number must be higher than 0." << std::endl;
-                                continue;
+                            if (n > 0) {
+                                break;
                             }
+                            std::cout << "\nThe number of stations must be higher than 0\n\n";
                             std::cin.clear();
                             std::cin.ignore();
+                        }
+
+                        std::cout << "Loading...\n\n";
+
+                        auto res = graph.topStationsAffected(linesToBeRemoved, n, error);
+
+                        if (error) {
+                            std::cout << "One or more stations that you provided do not exist.\n\n";
                             break;
                         }
-                        graph.topStationsAffected(linesToBeRemoved, 5);
 
-                       // std::cout << graph.topStationsAffected(linesToBeRemoved, 5);
+                        int counter = 0;
+                        for (auto& u : res) {
+                            for (auto& v : res) {
+                                std::cout << "Line from " << linesToBeRemoved.at(counter).first << " to "
+                                          << linesToBeRemoved.at(counter).second << " removed:" << std::endl;
+                                for (auto& p : v) {
+                                    std::cout << "\t" << "Station " << p.first->getName() << " -> " << p.second << std::endl;
+                                }
+                            }
+                        }
+                        std::cout << std::endl;
+                        break;
                     }
                 }
                 break;
             }
         }
+        std::cout << "Enter a random key to continue.\n";
+        char filler;
+        std::cin >> filler;
     }
 }
