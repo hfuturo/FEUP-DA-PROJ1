@@ -156,7 +156,7 @@ void UserInterface::showMenu() {
                     linesToBeRemoved.emplace_back(s,t);
                 }
 
-                if (linesToBeRemoved.empty() || linesToBeRemoved.size() < 2) {
+                if (linesToBeRemoved.empty()) {
                     std::cout << "You need to give at least 2 stations." << std::endl;
                     break;
                 }
@@ -211,7 +211,22 @@ void UserInterface::showMenu() {
                     }
 
                     case '2': {
+                        int n;
+                        std::cout << "Insert the number os stations: ";
 
+                        while (true) {
+                            std::cin >> n;
+                            if (n <= 0) {
+                                std::cout << "The number must be higher than 0." << std::endl;
+                                continue;
+                            }
+                            std::cin.clear();
+                            std::cin.ignore();
+                            break;
+                        }
+                        graph.topStationsAffected(linesToBeRemoved, 5);
+
+                       // std::cout << graph.topStationsAffected(linesToBeRemoved, 5);
                     }
                 }
                 break;

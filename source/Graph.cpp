@@ -6,10 +6,10 @@
 #include <queue>
 #include <map>
 
-#include "../include/Heap.h"
 #include "../include/Graph.h"
 #include "../include/constants.h"
 #include "../include/StationEdge.h"
+#include "../include/MutablePriorityQueue.h"
 
 std::vector<Station*> Graph::getStationSet() const {
     return this->stationSet;
@@ -93,7 +93,6 @@ bool Graph::removeStation(const Station *station) {
         }
         count++;
     }
-
     return false;
 }
 
@@ -131,7 +130,7 @@ bool Graph::dfs(const std::string &source, const std::string &dest) {
     }
 
     for (auto& station : getStationSet()) {
-        s->setVisited(false);
+        station->setVisited(false);
     }
 
     return dfsVisit(s, dest);
@@ -229,6 +228,7 @@ double Graph::maxFlow(const std::string &source, const std::string &target) {
         flow += e->getFlow();
     }
 
+    t->setMaximumFlow(flow);
     return flow;
 }
 
@@ -250,7 +250,6 @@ std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullM
         for (auto u : getStationSet()) {
             if (v != u) {
                 flow = maxFlow(v->getName(), u->getName());
-                if (flow > u->getMaximumFlow()) u->setMaximumFlow(flow);
                 if (flow > max) {
                     max = flow;
                     res.clear();
@@ -265,6 +264,7 @@ std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullM
     return res;
 }
 
+//TODO: Dar fix
 std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
     std::vector<std::pair<std::string, double>> res;
 
@@ -304,6 +304,7 @@ std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
     return {res.begin(), res.begin() + n};
 }
 
+//TODO: DAR FIX
 std::vector<std::pair<std::string, double>> Graph::topMunicipalities(int n) {
     std::vector<std::pair<std::string, double>> res;
 
@@ -399,35 +400,106 @@ double Graph::maxFlowSubGraph(const std::vector<std::pair<std::string, std::stri
     return flow;
 }
 
-double Graph::topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n) {
-    fullMaxFlow();
+std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n) {
+    std::map<std::pair<Station*,Station*>, double> map;
 
-    //same as above
+    for (int i = 0; i < getStationSet().size() - 1; i++) {
+        Station* u = getStationSet().at(i);
+        for (int j = i+1; j < getStationSet().size(); j++) {
+            Station* v = getStationSet().at(j);
+            double flow = maxFlow(u->getName(), v->getName());
+            map.insert({{u, v}, flow});
+            map.insert({{v, u}, flow});
+        }
+    }
+
     std::vector<std::pair<Station*, Station*>> stations;
     std::vector<std::pair<std::pair<Station*, Station*>, std::pair<double, std::string>>> removedEdges;
+    std::vector<std::vector<std::pair<Station*, double>>> res;
 
     for (auto& name : linesToRemove) {
         Station* station1 = findStation(name.first);
         Station* station2 = findStation(name.second);
-        if (station1 == nullptr || station2 == nullptr) return -2;
+        if (station1 == nullptr || station2 == nullptr) return res;
         stations.emplace_back(station1, station2);
     }
 
     for (auto& p : stations) {
+        std::vector<std::pair<Station*, double>> aux;
+
+        //remove aresta do grafo
         Edge* edge = p.first->removeAndStoreEdge(p.second);
         if (edge == nullptr) continue;
         removedEdges.push_back({{p.first, p.second}, {edge->getCapacity(), edge->getService()}});
         Edge* edge2 = p.second->removeAndStoreEdge(p.first);
         delete edge;
         delete edge2;
+
+        double flow = maxFlow(p.first->getName(), p.second->getName());
+        double maximumFlow = map[{p.first, p.second}];
+
+        //calcula stations mais afetadas e guarda em aux
+        aux.emplace_back(p.first, std::abs(flow - maximumFlow));
+        aux.emplace_back(p.second, std::abs(flow - maximumFlow));
+
+        //ordena elementos
+        std::sort(aux.begin(), aux.end(), [](std::pair<Station*, double>& p1, std::pair<Station*, double>& p2) {return p1.second > p2.second;});
+
+        if (n < aux.size()) {
+            std::vector<std::pair<Station*, double>> final(aux.begin(), aux.begin() + n);
+            res.push_back(final);
+        }
+        else {
+            res.push_back(aux);
+        }
+
+        for (auto& pair : removedEdges) {
+            addBidirectionalLine(pair.first.first->getName(), pair.first.second->getName(), pair.second.first, pair.second.second);
+        }
+
+        aux.clear();
     }
-    //
 
-    //Heap heap();
-
-
+    return res;
 }
 
-void Graph::fullMaxFlowOrdered(std::map<Station*, double>& map) {
+/*
+double Graph::maxFlowMinCost(const std::string &origin, const std::string &dest) {
+    auto source = findStation(origin);
+    auto target = findStation(dest);
 
+    if (source == nullptr || target == nullptr || source == target) return -2;
+
+    if (!dfs(origin, dest)) return -1;
+
+    dijkstra(source, target);
 }
+
+
+void Graph::dijkstra(Station* origin, Station* dest) {
+    for (auto& s : getStationSet()) {
+        s->setVisited(false);
+        s->setPath(nullptr);
+        s->setCost(INT32_MAX);
+    }
+
+    origin->setCost(0);
+
+    MutablePriorityQueue<Station> q;
+    std::string service;
+    int count = 0;
+
+    for (auto& v : getStationSet()) {
+        q.insert(v);
+    }
+
+    while (!q.empty()) {
+        auto u = q.extractMin();
+        u->setVisited(true);
+
+        for (auto& e : u->getAdj()) {
+            Station* neighbor = e->getDest();
+            if (!neighbor->isVisited() && )
+        }
+    }
+} */

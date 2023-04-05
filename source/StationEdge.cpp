@@ -67,6 +67,18 @@ void Station::setMaximumFlow(double maximumFlow) {
     this->maximumFlow = maximumFlow;
 }
 
+void Station::setCost(double cost) {
+    this->cost = cost;
+}
+
+double Station::getCost() const {
+    return this->cost;
+}
+
+bool Station::operator<(Station &station) const {
+    return this->cost < station.getCost();
+}
+
 Edge* Station::addLine(Station *dest, const double capacity, const std::string &service) {
     Edge* edge = new Edge(this, dest, capacity, service);
     adj.push_back(edge);
@@ -89,6 +101,7 @@ bool Station::removeEdge(std::string name) {
             it++;
         }
     }
+
     return removeEdge;
 }
 

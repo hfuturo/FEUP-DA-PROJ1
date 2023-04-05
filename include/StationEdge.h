@@ -66,6 +66,12 @@ private:
      * @brief The maximum number of trains that can simultaneously arrive at this station.
      */
     double maximumFlow;
+
+    /**
+     * @brief The cost that takes to get from a station to this station. Need for Dijkstra.
+     */
+    double cost;
+
 public:
     /**
      * @brief A constructor that initializes a station with a name, district, municipality, township and line.
@@ -214,6 +220,17 @@ public:
      * @return The maximum flow of this station.
      */
     double getMaximumFlow() const;
+
+    void setCost(double cost);
+
+    double getCost() const;
+
+    bool operator<(Station& station) const;
+
+    /**
+     * @brief Index of this station in Priority Queue. Need for Dijkstra.
+     */
+    int queueIndex;
 };
 
 /************************* Edge  **************************/
