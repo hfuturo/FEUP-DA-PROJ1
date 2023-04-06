@@ -63,11 +63,6 @@ private:
     Edge* path;
 
     /**
-     * @brief The maximum number of trains that can simultaneously arrive at this station.
-     */
-    double maximumFlow;
-
-    /**
      * @brief The cost that takes to get from a station to this station. Need for Dijkstra.
      */
     double cost;
@@ -76,7 +71,7 @@ public:
     /**
      * @brief A constructor that initializes a station with a name, district, municipality, township and line.
      *
-     * @note This constructor initializes path as nullptr, visited as false and maximumFlow as 0.
+     * @note This constructor initializes path as nullptr, visited as false and cost as 0.
      *
      * @param name The name of the station.
      * @param district The district where the station belongs.
@@ -207,24 +202,26 @@ public:
     Edge* getPath() const;
 
     /**
-     * @brief Sets the maximum flow of this station.
+     * @brief Sets the cost that takes to get to this station.
      *
-     * @param maximumFlow The value of the maximum flow.
+     * @param cost The cost.
      */
-    void setMaximumFlow(double maximumFlow);
-
-
-    /**
-     * @brief Gets the maximum flow of this station.
-     *
-     * @return The maximum flow of this station.
-     */
-    double getMaximumFlow() const;
-
     void setCost(double cost);
 
+    /**
+     * @brief Gets the cost that takes to get to this station.
+     *
+     * @return The cost.
+     */
     double getCost() const;
 
+    /**
+     * @brief Compares this station's cost to another station's cost
+     *
+     * @param station The another station that we are going to compare.
+     * @return True if this station's cost is fewer than the other station's cost.
+     * @return False if this station's cost is greater than the other station's cost.
+     */
     bool operator<(Station& station) const;
 
     /**
@@ -269,6 +266,8 @@ private:
 public:
     /**
      * @brief Constructor that initializes an edge with an origin station, a destination station, a capacity and a service.
+     *
+     * @note This constructor initializes reverse as nullptr and flow as 0.
      *
      * @param origin The station where this edge starts.
      * @param dest The station where this edge ends.

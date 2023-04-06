@@ -263,7 +263,6 @@ double Graph::maxFlow(const std::string &source, const std::string &target) {
         flow += e->getFlow();
     }
 
-    t->setMaximumFlow(flow);
     return flow;
 }
 
@@ -535,15 +534,12 @@ std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const
     double alfaCost, standardCost, standardTrains, alfaTrains;
     alfaCost = standardCost = INT_MAX;
 
-    auto edges = source->getAdj();
-
     if (dfs(source->getName(), target->getName(), "ALFA PENDULAR")) {
         dijkstra(source, target, "ALFA PENDULAR");
         alfaTrains = calculateCost(source, target, alfaPaths);
         alfaCost = alfaTrains * ALFA_PENDULAR_COST * alfaPaths;
         existsPath = true;
     }
-
 
     if (dfs(source->getName(), target->getName(), "STANDARD")) {
         dijkstra(source, target, "STANDARD");
@@ -554,19 +550,15 @@ std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const
 
     if (!existsPath) return {-1, -1};
 
-    auto e = target->getPath();
-    while (true) {
-        if (e != nullptr) {
-            e = e->getOrigin()->getPath();
-        }
-        else {
-            break;
-        }
-    }
-
     if (alfaCost < standardCost) {
         service = "ALFA PENDULAR";
         return {alfaCost, alfaTrains};
+    }
+    else if (alfaCost == standardCost) {
+        if (alfaTrains > standardTrains) {
+            service = "ALFA PENDULAR";
+            return {alfaCost, alfaTrains};
+        }
     }
     service = "STANDARD";
     return {standardCost, standardTrains};

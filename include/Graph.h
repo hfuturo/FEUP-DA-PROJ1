@@ -24,9 +24,9 @@ public:
     Graph(){};
 
     /**
-     * @brief Get the vector where all the nodes are stored.
+     * @brief Get the vector where all the stations are stored.
      *
-     * @return The vector.
+     * @return A vector containing all the stations of the graph.
      */
     std::vector<Station*> getStationSet() const;
 
@@ -100,7 +100,10 @@ public:
     bool addBidirectionalLine(const std::string& origin, const std::string& dest, const double& capacity, const std::string& service);
 
     /**
-     * @brief Gets the maximum number of trains that can simultaneously travel between two stations.
+     * @brief Gets the maximum number of trains that can simultaneously travel between two stations by apllying the Edmonds-Karp Algorithm.
+     *
+     * @note This function was implemented by Gonçalo Leão.
+     *
      * @param source The name of the origin station.
      * @param target The name of the final station.
      * @return -2 if either the origin station does not exist, the final station does not exist or the final station is the same as the final station.
@@ -111,35 +114,171 @@ public:
 
     /**
      * @brief Finds an augmenting path between two stations.
+     *
+     * @note This function was implemented by Gonçalo Leão.
+     *
      * @param s The origin station.
      * @param t The final station.
      * @return True if exists an augmenting path.
      * @return False otherwise.
      */
     bool findAugmentingPath(Station* s, Station* t);
+
+    /**
+     * @brief Calculates how much more flow is allowed in each edge of the augmenting path.
+     *
+     * @note This function was implemented by Gonçalo Leão.
+     *
+     * @param s The origin station.
+     * @param t The destination station.
+     * @return The minimal residual flow.
+     */
     double findMinResidualAlongPath(Station* s, Station* t);
+
+    /**
+     * @brief Finds the flow of a augmented path.
+     *
+     * @note This function was implemented by Goncaçalo Leão.
+     *
+     * @param s The origin station.
+     * @param t The destination station.
+     * @param f The minimal residual flow of this augmented path.
+     */
     void augmentFlowAlongPath(Station* s, Station* t, double f);
+
+    /**
+     * @brief This function evaluates if the staion w is optimal to insert into the queue. (BFS)
+     *
+     * @note This function was implemented by Gonçalo Leão.
+     *
+     * @param q Queue where we are going to add stations.
+     * @param e Edge that we took to get to station w.
+     * @param w Station we are going to evaluate.
+     * @param residual The remaining capacity of the station w.
+     */
     void testAndVisit(std::queue<Station*>& q, Edge* e, Station* w, double residual);
+
+    /**
+     * @brief Aplly the DFS algorithm to see if a path between source and dest exist. We can apply DFS in all paths, STANDARD paths and ALFA PENDULAR paths.
+     *
+     * @param source The origin station's name
+     * @param dest The destination station's name
+     * @param service The service we want to execute the DFS. "All" executes dfs in all paths. "Standard" executes dfs only in standard paths. "ALFA PENDULAR" executes dfs only in alfa pendular paths.
+     * @return True if a path exists.
+     * @return False otherwise.
+     */
     bool dfs(const std::string& source, const std::string& dest, const std::string& service);
+
+    /**
+     * @brief Executes the "heavy work" of the dfs algorithm in all paths.
+     *
+     * @param s The origin station.
+     * @param dest The destination station's name.
+     * @return True if a path exists.
+     * @return False otherwise.
+     */
     bool dfsVisit(Station* s, const std::string& dest);
+
+    /**
+     * @brief Executes the "heavy work" of the dfs algorithm in "ALFA PENDULAR" paths.
+     *
+     * @param s The origin station.
+     * @param dest The destination station's name.
+     * @return True if a path exists.
+     * @return False otherwise.
+     */
     bool dfsVisitAlfaPendular(Station* s, const std::string& dest);
+
+    /**
+     * @brief Executes the "heavy work" of the dfs algorithm in "STANDARD" paths.
+     *
+     * @param s The origin station.
+     * @param dest The destination station's name.
+     * @return True if a path exists.
+     * @return False otherwise.
+     */
     bool dfsVisitStandard(Station* s, const std::string& dest);
+
+    /**
+     * @brief Executes the Edmonds-Karp algorithm in all pair of stations to find the pair of stations that require the most amount of trains.
+     *
+     * @return A vector containing the number of trains and the pair of station's name.
+     */
     std::vector<std::pair<double, std::pair<std::string, std::string>>> fullMaxFlow();
+
+    /**
+     * @brief Executes the Edmonds-Karp algorithm to find the top (n) districts with the most flow of trains.
+     *
+     * @param n The number of the districts that we want to see.
+     * @return A vector containing a pair with the district name and the respective flow of trains.
+     */
     std::vector<std::pair<std::string, double>> topDistricts(int n);
+
+    /**
+     * @brief Executes the Edmonds-Karp algorithm to find the top (n) municipalities with the most flow of trains.
+     *
+     * @param n The number of the districts that we want to see.
+     * @return A vector containing a pair with the district name and the respective flow of trains.
+     */
     std::vector<std::pair<std::string, double>> topMunicipalities(int n);
+
     /**
      * @brief Finds the maximum number of trains that can travel simultaneously to a specific station from the entire railway network.
      * @param dest The name of the station.
      * @return
      */
     double maxFlowGridToStation(const std::string& dest);
-    std::pair<double, double> maxFlowMinCost(const std::string& origin, const std::string& dest, std::string& service);
-    double maxFlowSubGraph(const std::vector<std::pair<std::string, std::string>>& linesToRemove, const std::string& origin, const std::string& dest);
-    void dijkstra(Station* source, Station* dest, const std::string& service);
-    std::vector<std::vector<std::pair<Station*, double>>> topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n, bool& error);
-    double calculateCost(Station* origin, Station* dest, int& nPath) const;
 
-  //  void fullMaxFlowOrdered(std::map<Station*, double>& map);
+    /**
+     * @brief Finds the path that connects two stations which cost less to the company while maximizes the number of trains that can travel.
+     *
+     * @note If there is no path that connects the origin station and the destination station, the service will be uninitialized.
+     *
+     * @param origin The origin station's name.
+     * @param dest The destination station's name.
+     * @param service The service that the path took.
+     * @return A pair which contains the cost and the most amount of trains that can travel simultaneously between origin and destination.
+     */
+    std::pair<double, double> maxFlowMinCost(const std::string& origin, const std::string& dest, std::string& service);
+
+    /**
+     * @brief Calculates the maximum number of trains that can simultaneously travel between two stations by apllying the Edmonds-Karp Algorithm in a subgraph.
+     *
+     * @param linesToRemove A vector that contains a pair of the station's name that are going to have the edges that connect them removed.
+     * @param origin The origin station's name.
+     * @param dest The destination station's name.
+     * @return The max flow between both stations.
+     */
+    double maxFlowSubGraph(const std::vector<std::pair<std::string, std::string>>& linesToRemove, const std::string& origin, const std::string& dest);
+
+    /**
+     * @brief Finds the minimal cost path between two stations. We can apply in "STANDARD" paths and "ALFA PENDULAR" paths.
+     *
+     * @param source The origin station.
+     * @param dest The destination station.
+     * @param service The service we want to execute the Dijkstra. It can either be "STANDARD" or "ALFA PENDULAR".
+     */
+    void dijkstra(Station* source, Station* dest, const std::string& service);
+
+    /**
+     * @brief Provides the top (n) stations that were affected by the lines removed.
+     *
+     * @param linesToRemove A vector that contains a pair of the station's name that are going to have the edges that connect them removed.
+     * @param n The number of stations that we want to see affected.
+     * @param error Variable to be initialized if an error occurred.
+     * @return A vector containing a pair which have the station and the number of trains affected.
+     */
+    std::vector<std::vector<std::pair<Station*, double>>> topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n, bool& error);
+
+    /**
+     * @brief Calculate the maximum number of trains that can travel between a specific path.
+     *
+     * @param origin The origin station.
+     * @param dest The destination station.
+     * @param nPath The number of lines that it took to get to the destination station. Must be initialized in this function.
+     * @return The maximum number of trains that can travel from origin to dest.
+     */
+    double calculateCost(Station* origin, Station* dest, int& nPath) const;
 };
 
 #endif
