@@ -66,7 +66,7 @@ void UserInterface::showMenu() {
                         std::vector<std::pair<double, std::pair<std::string, std::string>>> res = graph.fullMaxFlow();
                         std::cout << "The stations that require the most amount of trains when taking full advantage of the network capacity are: " << std::endl;
                         for (auto& p: res) {
-                            std::cout << "\t" << p.second.first << " to " << p.second.second << std::endl;
+                            std::cout << "\t" << p.second.first << " to " << p.second.second << " with a capacity of " <<  p.first << std::endl;
                         }
                         std::cout << std::endl;
                         break;
@@ -167,6 +167,10 @@ void UserInterface::showMenu() {
                     }
                     if (origin != target) break;
                 }
+
+                std::pair<double, double> res = graph.maxFlowMinCost(origin, target);
+                std::cout << "The maximum amount of trains that can simultaneously travel between " << origin << " and " << target << " is " << res.second;
+                std::cout << " with a total cost of " << res.first << std::endl << std::endl;
                 break;
             }
 
@@ -315,6 +319,7 @@ void UserInterface::showMenu() {
                 break;
             }
         }
+        if (done) break;
         std::cout << "Enter a random key to continue.\n";
         char filler;
         std::cin >> filler;

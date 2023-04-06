@@ -5,6 +5,7 @@
 #include <iostream>
 #include <queue>
 #include <map>
+#include <unordered_map>
 
 #include "../include/Graph.h"
 #include "../include/constants.h"
@@ -240,62 +241,79 @@ void Graph::testAndVisit(std::queue<Station *> &q, Edge *e, Station *w, double r
     }
 }
 
-//TODO: remover pares "repetidos" (u,v) (v,u) do vetor e melhorar complexidade temporal
 std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullMaxFlow() {
+    std::map<std::pair<std::string, std::string>, double> map;
     std::vector<std::pair<double, std::pair<std::string, std::string>>> res;
-    double max = INT32_MIN;
-    double flow;
-
-    for (auto v : getStationSet()) {
-        for (auto u : getStationSet()) {
-            if (v != u) {
-                flow = maxFlow(v->getName(), u->getName());
-                if (flow > max) {
-                    max = flow;
-                    res.clear();
-                    res.push_back({flow, {v->getName(), u->getName()}});
-                } else if (flow == max) {
-                    res.push_back({flow, {v->getName(), u->getName()}});
-                }
-            }
-        }
-    }
-
-    return res;
-}
-
-//TODO: Dar fix
-std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
-    std::vector<std::pair<std::string, double>> res;
-
-    for (auto v : getStationSet()) {
-        bool exists = false;
-        for (auto p : res) {
-            if (v->getDistrict() == p.first) {
-                exists = true;
-                break;
-            }
-        }
-
-        if (!exists) {
-            res.emplace_back(v->getDistrict(), 0);
-        }
-    }
 
     for (auto v : getStationSet()) {
         for (auto u : getStationSet()) {
             if (v != u) {
                 double flow = maxFlow(v->getName(), u->getName());
-                for (auto& p : res) {
-                    if (p.first == u->getDistrict()) {
-                        p.second += flow;
-                    }
+                if (flow == -1 || flow == -2) continue;
+                if (map.find({v->getName(), u->getName()}) == map.end() && map.find({u->getName(), v->getName()}) == map.end()) {
+                    map.insert({{v->getName(), u->getName()}, flow});
                 }
             }
         }
     }
 
-    std::sort(res.begin(), res.end(), [](std::pair<std::string, double>& p1, std::pair<std::string, double>& p2) {return p1.second < p2.second;});
+    for (auto& it : map) {
+        res.emplace_back(it.second, it.first);
+    }
+
+    std::sort(res.begin(), res.end(), [](std::pair<double, std::pair<std::string, std::string>>& p1, std::pair<double, std::pair<std::string, std::string>>& p2){
+        return p1.first > p2.first;
+    });
+
+    double max = res.front().first;
+    int counter = 1;
+    for (int i = 1; i < res.size(); i++) {
+        if (res.at(i).first < max) break;
+        counter++;
+    }
+
+    std::vector<std::pair<double, std::pair<std::string, std::string>>> final(res.begin(), res.begin() + counter);
+    return final;
+}
+
+std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
+    std::unordered_map<std::string, double> map;
+
+    for (auto v : getStationSet()) {
+        if (map.find(v->getDistrict()) == map.end()) {
+            map.insert({v->getDistrict(), 0});
+        }
+    }
+
+    //calcula flow entre estacoes do mesmo distrito
+    for (auto v : getStationSet()) {
+        for (auto u : getStationSet()) {
+            if (v != u) {
+                if (u->getDistrict() == v->getDistrict()) {
+                    double flow = maxFlow(v->getName(), u->getName());
+                    if (flow == -1 || flow == -2) continue;
+                    map[u->getDistrict()] += flow;
+                }
+            }
+        }
+    }
+
+    //calcula flow entre estacoes de fora para dentro do distrito
+    for (auto v : getStationSet()) {
+        auto edges = v->getAdj();
+        for (auto e : edges) {
+            Station* neighbor = e->getDest();
+            map[neighbor->getDistrict()] += e->getCapacity();
+        }
+    }
+
+    std::vector<std::pair<std::string, double>> res;
+
+    for (auto& it : map) {
+        res.emplace_back(it);
+    }
+
+    std::sort(res.begin(), res.end(), [](std::pair<std::string, double>& p1, std::pair<std::string, double>& p2) {return p1.second > p2.second;});
 
     if (n > res.size()) {
         return res;
@@ -304,38 +322,44 @@ std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
     return {res.begin(), res.begin() + n};
 }
 
-//TODO: DAR FIX
 std::vector<std::pair<std::string, double>> Graph::topMunicipalities(int n) {
-    std::vector<std::pair<std::string, double>> res;
+    std::unordered_map<std::string, double> map;
 
     for (auto v : getStationSet()) {
-        bool exists = false;
-        for (auto p : res) {
-            if (v->getMunicipality() == p.first) {
-                exists = true;
-                break;
-            }
-        }
-
-        if (!exists) {
-            res.emplace_back(v->getMunicipality(), 0);
+        if (map.find(v->getMunicipality()) == map.end()) {
+            map.insert({v->getMunicipality(), 0});
         }
     }
 
+    //calcula flow entre estacoes do mesmo distrito
     for (auto v : getStationSet()) {
         for (auto u : getStationSet()) {
             if (v != u) {
-                double flow = maxFlow(v->getName(), u->getName());
-                for (auto& p : res) {
-                    if (p.first == u->getMunicipality()) {
-                        p.second += flow;
-                    }
+                if (u->getMunicipality() == v->getMunicipality()) {
+                    double flow = maxFlow(v->getName(), u->getName());
+                    if (flow == -1 || flow == -2) continue;
+                    map[u->getMunicipality()] += flow;
                 }
             }
         }
     }
 
-    std::sort(res.begin(), res.end(), [](std::pair<std::string, double>& p1, std::pair<std::string, double>& p2) {return p1.second < p2.second;});
+    //calcula flow entre estacoes de fora para dentro do distrito
+    for (auto v : getStationSet()) {
+        auto edges = v->getAdj();
+        for (auto e : edges) {
+            Station* neighbor = e->getDest();
+            map[neighbor->getMunicipality()] += e->getCapacity();
+        }
+    }
+
+    std::vector<std::pair<std::string, double>> res;
+
+    for (auto& it : map) {
+        res.emplace_back(it);
+    }
+
+    std::sort(res.begin(), res.end(), [](std::pair<std::string, double>& p1, std::pair<std::string, double>& p2) {return p1.second > p2.second;});
 
     if (n > res.size()) {
         return res;
@@ -464,19 +488,55 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
     return res;
 }
 
-double Graph::maxFlowMinCost(const std::string &origin, const std::string &dest) {
+std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const std::string &dest) {
     auto source = findStation(origin);
     auto target = findStation(dest);
 
-    if (source == nullptr || target == nullptr || source == target) return -2;
+    if (source == nullptr || target == nullptr || source == target) {}
 
-    if (!dfs(origin, dest)) return -1;
+    if (dfs(origin, dest)) {}
 
- //   dijkstra(source, target);
+    int alfaTrains, standardTrains;
+    double alfaCost, standardCost;
+    alfaCost = standardCost = 0;
+
+    auto edges = source->getAdj();
+
+    if (dijkstra(source, target, "ALFA PENDULAR")) {
+        alfaCost = calculateCost(source, target, alfaTrains) * ALFA_PENDULAR_COST;
+        alfaCost *= alfaTrains;
+    }
+
+    if (dijkstra(source, target, "STANDARD")) {
+        standardCost = calculateCost(source, target, standardTrains) * STANDARD_COST;
+        standardCost *= standardTrains;
+    }
+
+    if (alfaCost < standardCost) return {alfaCost, alfaTrains};
+    return {standardCost, standardTrains};
 }
 
+double Graph::calculateCost(Station *origin, Station *dest, int& nTrains) const {
+    double minCapacity, capacity;
+    nTrains = 0;
+    minCapacity = INT32_MAX;
+    auto e = dest->getPath();
 
-void Graph::dijkstra(Station* origin, Station* dest, const std::string& service) {
+    while (true) {
+        if (e != nullptr) {
+            capacity = e->getCapacity();
+            if (capacity < minCapacity) minCapacity = capacity;
+            e = e->getOrigin()->getPath();
+            nTrains++;
+        }
+        else {
+            break;
+        }
+    }
+    return minCapacity;
+}
+
+bool Graph::dijkstra(Station* origin, Station* dest, const std::string& service) {
     for (auto& s : getStationSet()) {
         s->setVisited(false);
         s->setPath(nullptr);
@@ -491,11 +551,12 @@ void Graph::dijkstra(Station* origin, Station* dest, const std::string& service)
         q.insert(v);
     }
 
+
     while (!q.empty()) {
         auto u = q.extractMin();
         u->setVisited(true);
 
-        if (u == dest) return;
+        if (u == dest) return true;
 
         for (auto& e : u->getAdj()) {
             if (e->getService() == service) {
@@ -508,4 +569,6 @@ void Graph::dijkstra(Station* origin, Station* dest, const std::string& service)
             }
         }
     }
+
+    return dest->isVisited();
 }
