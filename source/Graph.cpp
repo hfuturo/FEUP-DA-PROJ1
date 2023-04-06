@@ -2,14 +2,12 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <iostream>
 #include <queue>
 #include <map>
 #include <unordered_map>
 
 #include "../include/Graph.h"
 #include "../include/constants.h"
-#include "../include/StationEdge.h"
 #include "../include/MutablePriorityQueue.h"
 
 std::vector<Station*> Graph::getStationSet() const {
@@ -524,14 +522,15 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
     return res;
 }
 
-std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const std::string &dest) {
+std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const std::string &dest, std::string& service) {
     auto source = findStation(origin);
     auto target = findStation(dest);
 
-    if (source == nullptr || target == nullptr || source == target) {}
+    if (source == nullptr || target == nullptr || source == target) {
+        return {-2, -2};
+    }
 
-    if (dfs(origin, dest, "ALL")) {}
-
+    bool existsPath = false;
     int alfaPaths, standardPaths;
     double alfaCost, standardCost, standardTrains, alfaTrains;
     alfaCost = standardCost = INT_MAX;
@@ -542,6 +541,7 @@ std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const
         dijkstra(source, target, "ALFA PENDULAR");
         alfaTrains = calculateCost(source, target, alfaPaths);
         alfaCost = alfaTrains * ALFA_PENDULAR_COST * alfaPaths;
+        existsPath = true;
     }
 
 
@@ -549,7 +549,10 @@ std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const
         dijkstra(source, target, "STANDARD");
         standardTrains = calculateCost(source, target, standardPaths);
         standardCost = standardTrains * STANDARD_COST * standardPaths;
+        existsPath = true;
     }
+
+    if (!existsPath) return {-1, -1};
 
     auto e = target->getPath();
     while (true) {
@@ -561,7 +564,11 @@ std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const
         }
     }
 
-    if (alfaCost < standardCost) return {alfaCost, alfaTrains};
+    if (alfaCost < standardCost) {
+        service = "ALFA PENDULAR";
+        return {alfaCost, alfaTrains};
+    }
+    service = "STANDARD";
     return {standardCost, standardTrains};
 }
 

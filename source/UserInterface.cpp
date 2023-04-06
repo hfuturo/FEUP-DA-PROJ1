@@ -151,7 +151,7 @@ void UserInterface::showMenu() {
             }
 
             case '2': {
-                std::string origin, target;
+                std::string origin, target, service;
                 while (true) {
                     std::cout << "Insert the name of the first station: ";
                     while (true) {
@@ -167,10 +167,18 @@ void UserInterface::showMenu() {
                     }
                     if (origin != target) break;
                 }
-
-                std::pair<double, double> res = graph.maxFlowMinCost(origin, target);
+                std::cout << std::endl;
+                std::pair<double, double> res = graph.maxFlowMinCost(origin, target, service);
+                if (res.first == -2 && res.second == -2) {
+                    std::cout << "At least one of the stations do not exist.\n\n";
+                    break;
+                }
+                if (res.first == -1 && res.second == -1) {
+                    std::cout << "There is no path between these stations.n\n\n";
+                    break;
+                }
                 std::cout << "The maximum amount of trains that can simultaneously travel between " << origin << " and " << target << " is " << res.second;
-                std::cout << " with a total cost of " << res.first << std::endl << std::endl;
+                std::cout << " with a total cost of " << res.first << " using the " << service << std::endl << std::endl;
                 break;
             }
 

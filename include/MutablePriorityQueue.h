@@ -11,19 +11,74 @@
  * class T must have: (i) accessible field int queueIndex; (ii) operator< defined.
  */
 
+/**
+ * @brief A simple implementation of a priority queue.
+ *
+ * @note This priority queue was implemented by João Pascoal Faria.
+ * @tparam T A class for the template.
+ */
 template <class T>
 class MutablePriorityQueue {
+    /**
+     * @brief A vector that stores the element of the priority queue.
+     */
     std::vector<T *> H;
+
+    /**
+     * @brief Used to insert an element in the heap.
+     *
+     * @param i The position of the element that will be inserted.
+     */
     void heapifyUp(unsigned i);
+
+    /**
+     * @brief Used to remove an element from the heap.
+     *
+     * @param i The position of the element that will be removed.
+     */
     void heapifyDown(unsigned i);
+
+    /**
+     * @brief Sets the element in the heap.
+     *
+     * @param i The postion of the element.
+     * @param x The element.
+     */
     inline void set(unsigned i, T * x);
 public:
+    /**
+     * @brief Creates an empty heap.
+     */
     MutablePriorityQueue();
+
+    /**
+     * @brief Insert an element in the heap.
+     *
+     * @param x The element that will be inserted.
+     */
     void insert(T * x);
+
+    /**
+     * @brief Extracts the minimal element of the heap.
+     *
+     * @return The minimal element.
+     */
     T * extractMin();
+
+    /**
+     * @brief Updates the priority of an element in the heap.
+     *
+     * @param x The element that will be updated.
+     */
     void decreaseKey(T * x);
+
+    /**
+     * @brief Returns if the heap is empty.
+     *
+     * @return True if the heap is empty.
+     * @return False otherwise.
+     */
     bool empty();
-    int getSize() const;
 };
 
 // Index calculations
@@ -96,8 +151,4 @@ void MutablePriorityQueue<T>::set(unsigned i, T * x) {
     x->queueIndex = i;
 }
 
-template <class T>
-int MutablePriorityQueue<T>::getSize() const {
-    return H.size();
-}
 #endif //DA_PROJ1_MUTABLEPRIORITYQUEUE_H

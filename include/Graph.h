@@ -133,7 +133,7 @@ public:
      * @return
      */
     double maxFlowGridToStation(const std::string& dest);
-    std::pair<double, double> maxFlowMinCost(const std::string& origin, const std::string& dest);
+    std::pair<double, double> maxFlowMinCost(const std::string& origin, const std::string& dest, std::string& service);
     double maxFlowSubGraph(const std::vector<std::pair<std::string, std::string>>& linesToRemove, const std::string& origin, const std::string& dest);
     void dijkstra(Station* source, Station* dest, const std::string& service);
     std::vector<std::vector<std::pair<Station*, double>>> topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n, bool& error);
