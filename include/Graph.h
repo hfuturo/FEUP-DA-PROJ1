@@ -120,8 +120,10 @@ public:
     double findMinResidualAlongPath(Station* s, Station* t);
     void augmentFlowAlongPath(Station* s, Station* t, double f);
     void testAndVisit(std::queue<Station*>& q, Edge* e, Station* w, double residual);
-    bool dfs(const std::string& source, const std::string& dest);
+    bool dfs(const std::string& source, const std::string& dest, const std::string& service);
     bool dfsVisit(Station* s, const std::string& dest);
+    bool dfsVisitAlfaPendular(Station* s, const std::string& dest);
+    bool dfsVisitStandard(Station* s, const std::string& dest);
     std::vector<std::pair<double, std::pair<std::string, std::string>>> fullMaxFlow();
     std::vector<std::pair<std::string, double>> topDistricts(int n);
     std::vector<std::pair<std::string, double>> topMunicipalities(int n);
@@ -133,9 +135,10 @@ public:
     double maxFlowGridToStation(const std::string& dest);
     std::pair<double, double> maxFlowMinCost(const std::string& origin, const std::string& dest);
     double maxFlowSubGraph(const std::vector<std::pair<std::string, std::string>>& linesToRemove, const std::string& origin, const std::string& dest);
-    bool dijkstra(Station* source, Station* dest, const std::string& service);
+    void dijkstra(Station* source, Station* dest, const std::string& service);
     std::vector<std::vector<std::pair<Station*, double>>> topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n, bool& error);
-    double calculateCost(Station* origin, Station* dest, int& nTrains) const;
+    double calculateCost(Station* origin, Station* dest, int& nPath) const;
+
   //  void fullMaxFlowOrdered(std::map<Station*, double>& map);
 };
 

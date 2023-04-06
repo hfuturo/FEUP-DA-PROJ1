@@ -111,7 +111,7 @@ void Graph::readNetwork() {
         getline(ss, origin, ',');
         getline(ss, dest, ',');
         getline(ss, capacity, ',');
-        getline(ss, service, ',');
+        getline(ss, service);
         addBidirectionalLine(origin, dest, std::stod(capacity), service);
     }
 
@@ -122,7 +122,7 @@ void Graph::fill() {
     readNetwork();
 }
 
-bool Graph::dfs(const std::string &source, const std::string &dest) {
+bool Graph::dfs(const std::string &source, const std::string &dest, const std::string& service) {
     auto s = findStation(source);
     auto d = findStation(dest);
 
@@ -134,7 +134,11 @@ bool Graph::dfs(const std::string &source, const std::string &dest) {
         station->setVisited(false);
     }
 
-    return dfsVisit(s, dest);
+
+    if (service == "ALL") return dfsVisit(s, dest);
+    if (service == "STANDARD") return dfsVisitStandard(s, dest);
+    if (service == "ALFA PENDULAR") return dfsVisitAlfaPendular(s, dest);
+    return false;
 }
 
 bool Graph::dfsVisit(Station *s, const std::string &dest) {
@@ -145,6 +149,38 @@ bool Graph::dfsVisit(Station *s, const std::string &dest) {
             if (e->getDest()->getName() == dest) return true;
             if (!neighbor->isVisited()) {
                 if (dfsVisit(neighbor, dest)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Graph::dfsVisitStandard(Station *s, const std::string &dest) {
+    s->setVisited(true);
+    if (!s->getAdj().empty()) {
+        for (auto& e : s->getAdj()) {
+            if (e->getService().size()-1 == 8) {
+                auto neighbor = e->getDest();
+                if (e->getDest()->getName() == dest) return true;
+                if (!neighbor->isVisited()) {
+                    if (dfsVisit(neighbor, dest)) return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool Graph::dfsVisitAlfaPendular(Station *s, const std::string &dest) {
+    s->setVisited(true);
+    if (!s->getAdj().empty()) {
+        for (auto& e : s->getAdj()) {
+            if (e->getService().size()-1 == 13) {
+                auto neighbor = e->getDest();
+                if (e->getDest()->getName() == dest) return true;
+                if (!neighbor->isVisited()) {
+                    if (dfsVisit(neighbor, dest)) return true;
+                }
             }
         }
     }
@@ -209,7 +245,7 @@ double Graph::maxFlow(const std::string &source, const std::string &target) {
         return -2;
     }
 
-    if (!dfs(source, target)) return -1;
+    if (!dfs(source, target, "ALL")) return -1;
 
     // Reset the flows
     for (auto v : stationSet) {
@@ -494,49 +530,63 @@ std::pair<double, double> Graph::maxFlowMinCost(const std::string &origin, const
 
     if (source == nullptr || target == nullptr || source == target) {}
 
-    if (dfs(origin, dest)) {}
+    if (dfs(origin, dest, "ALL")) {}
 
-    int alfaTrains, standardTrains;
-    double alfaCost, standardCost;
-    alfaCost = standardCost = 0;
+    int alfaPaths, standardPaths;
+    double alfaCost, standardCost, standardTrains, alfaTrains;
+    alfaCost = standardCost = INT_MAX;
 
     auto edges = source->getAdj();
 
-    if (dijkstra(source, target, "ALFA PENDULAR")) {
-        alfaCost = calculateCost(source, target, alfaTrains) * ALFA_PENDULAR_COST;
-        alfaCost *= alfaTrains;
+    if (dfs(source->getName(), target->getName(), "ALFA PENDULAR")) {
+        dijkstra(source, target, "ALFA PENDULAR");
+        alfaTrains = calculateCost(source, target, alfaPaths);
+        alfaCost = alfaTrains * ALFA_PENDULAR_COST * alfaPaths;
     }
 
-    if (dijkstra(source, target, "STANDARD")) {
-        standardCost = calculateCost(source, target, standardTrains) * STANDARD_COST;
-        standardCost *= standardTrains;
+
+    if (dfs(source->getName(), target->getName(), "STANDARD")) {
+        dijkstra(source, target, "STANDARD");
+        standardTrains = calculateCost(source, target, standardPaths);
+        standardCost = standardTrains * STANDARD_COST * standardPaths;
+    }
+
+    auto e = target->getPath();
+    while (true) {
+        if (e != nullptr) {
+            e = e->getOrigin()->getPath();
+        }
+        else {
+            break;
+        }
     }
 
     if (alfaCost < standardCost) return {alfaCost, alfaTrains};
     return {standardCost, standardTrains};
 }
 
-double Graph::calculateCost(Station *origin, Station *dest, int& nTrains) const {
-    double minCapacity, capacity;
-    nTrains = 0;
-    minCapacity = INT32_MAX;
+double Graph::calculateCost(Station *origin, Station *dest, int& nPath) const {
+    double maxFlow, cost;
+    nPath = 0;
+    maxFlow = INT_MAX;
     auto e = dest->getPath();
 
     while (true) {
+
         if (e != nullptr) {
-            capacity = e->getCapacity();
-            if (capacity < minCapacity) minCapacity = capacity;
+            cost = e->getCapacity();
+            if (cost < maxFlow) maxFlow = cost;
             e = e->getOrigin()->getPath();
-            nTrains++;
+            nPath++;
         }
         else {
             break;
         }
     }
-    return minCapacity;
+    return maxFlow;
 }
 
-bool Graph::dijkstra(Station* origin, Station* dest, const std::string& service) {
+void Graph::dijkstra(Station* origin, Station* dest, const std::string& service) {
     for (auto& s : getStationSet()) {
         s->setVisited(false);
         s->setPath(nullptr);
@@ -551,15 +601,14 @@ bool Graph::dijkstra(Station* origin, Station* dest, const std::string& service)
         q.insert(v);
     }
 
-
     while (!q.empty()) {
         auto u = q.extractMin();
         u->setVisited(true);
 
-        if (u == dest) return true;
+        if (u == dest) return;
 
         for (auto& e : u->getAdj()) {
-            if (e->getService() == service) {
+            if (e->getService().size() - 1 == service.size()) {
                 Station* neighbor = e->getDest();
                 if (!neighbor->isVisited() && e->getCapacity() + u->getCost() < neighbor->getCost()) {
                     neighbor->setPath(e);
@@ -569,6 +618,4 @@ bool Graph::dijkstra(Station* origin, Station* dest, const std::string& service)
             }
         }
     }
-
-    return dest->isVisited();
 }

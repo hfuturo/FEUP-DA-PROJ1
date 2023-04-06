@@ -3,11 +3,9 @@
 #include <iostream>
 
 int main() {
- //   UserInterface ui{};
- //   ui.showMenu();
-
-    Graph graph{};
-    graph.addStation("A", "fill", "fill", "fill", "fill");
+    UserInterface ui{};
+    ui.showMenu();
+ /*   graph.addStation("A", "fill", "fill", "fill", "fill");
     graph.addStation("B", "fill", "fill", "fill", "fill");
     graph.addStation("C", "fill", "fill", "fill", "fill");
     graph.addStation("D", "fill", "fill", "fill", "fill");
@@ -20,10 +18,10 @@ int main() {
     graph.addBidirectionalLine("B", "E", 2, "STANDARD");
     graph.addBidirectionalLine("B", "C", 5, "STANDARD");
     graph.addBidirectionalLine("D", "E", 1, "STANDARD");
-    graph.addBidirectionalLine("E", "C", 5, "ALFA PENDULAR");
+    graph.addBidirectionalLine("E", "C", 5, "ALFA PENDULAR"); */
 
-    auto s = graph.findStation("A");
-    auto t = graph.findStation("C");
+  //  auto s = graph.findStation("A");
+  //  auto t = graph.findStation("C");
 
 /*    for (auto v : graph.getStationSet()) {
         std::cout << v->getName() << std::endl;
@@ -33,17 +31,18 @@ int main() {
             if (edge->getService() == "STANDARD") std::cout << "\tSTANDARD\n";
         }
     } */
-     graph.fill();
+     //graph.fill();
+     //graph.maxFlowMinCost("Lisboa Oriente", "Pombal");
      //graph.maxFlowMinCost("Lisboa Oriente", "Pombal");
 
-    for (auto v : graph.getStationSet()) {
+  /*  for (auto v : graph.getStationSet()) {
         std::cout << v->getName() << std::endl;
         auto edges = v->getAdj();
         for (auto edge : edges) {
             if (edge->getService() == "ALFA PENDULAR") std::cout << "\tALFA PENDULAR\n";
             if (edge->getService() == "STANDARD") std::cout << "\tSTANDARD\n";
         }
-    }
+    } */
 
 
 
