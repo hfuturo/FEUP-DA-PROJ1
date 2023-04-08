@@ -5,6 +5,7 @@
 #include <queue>
 #include <map>
 #include <unordered_map>
+#include <iostream>
 
 #include "../include/Graph.h"
 #include "../include/constants.h"
@@ -278,15 +279,13 @@ std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullM
     std::map<std::pair<std::string, std::string>, double> map;
     std::vector<std::pair<double, std::pair<std::string, std::string>>> res;
 
-    for (auto v : getStationSet()) { //O(v)
-        for (auto u : getStationSet()) { //O(v)
-            if (v != u) {
-                double flow = maxFlow(v->getName(), u->getName()); // O(VE^2)
-                if (flow == -1 || flow == -2) continue;
-                if (map.find({v->getName(), u->getName()}) == map.end() && map.find({u->getName(), v->getName()}) == map.end()) { //log(n)
-                    map.insert({{v->getName(), u->getName()}, flow}); //log(n)
-                }
-            }
+    for (int i = 0; i < getStationSet().size() - 1; i++) {
+        Station* u = getStationSet().at(i);
+        for (int j = i+1; j < getStationSet().size(); j++) {
+            Station* v = getStationSet().at(j);
+            double flow = maxFlow(u->getName(), v->getName());
+            if (flow == -1 || flow == -2) continue;
+            map.insert({{u->getName(), v->getName()}, flow});
         }
     }
 
@@ -347,6 +346,7 @@ std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
 
     for (auto& it : map) {
         res.emplace_back(it);
+        std::cout << it.first << " " << it.second << std::endl << std::endl;
     }
 
     std::sort(res.begin(), res.end(), [](std::pair<std::string, double>& p1, std::pair<std::string, double>& p2) {return p1.second > p2.second;});
@@ -453,9 +453,6 @@ double Graph::maxFlowSubGraph(const std::vector<std::pair<std::string, std::stri
         addBidirectionalLine(p.first.first->getName(), p.first.second->getName(), p.second.first, p.second.second);
     }
 
-    if (flow == -2) return -2;
-    if (flow == -1) return -1;
-
     return flow;
 }
 
@@ -480,8 +477,8 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
         for (int j = i+1; j < getStationSet().size(); j++) {
             Station* v = getStationSet().at(j);
             double flow = maxFlow(u->getName(), v->getName());
+            if (flow == -1 || flow == -2) continue;
             map.insert({{u, v}, flow});
-            map.insert({{v, u}, flow});
         }
     }
 
@@ -497,6 +494,7 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
         delete edge2;
 
         double flow = maxFlow(p.first->getName(), p.second->getName());
+        if (flow == -1 || flow == -2) continue;
         double maximumFlow = map[{p.first, p.second}];
 
         //calcula stations mais afetadas e guarda em aux

@@ -141,7 +141,13 @@ void UserInterface::showMenu() {
                             }
                             std::cout << "\nInvalid Input. The station can not be empty.\n" << std::endl;
                         }
+                        std::cout << std::endl;
                         double flow = graph.maxFlowGridToStation(station);
+
+                        if (flow == -1) {
+                            std::cout << "Invalid input. Either one of the stations do not exist or both stations are the same.\n\n";
+                            break;
+                        }
 
                         std::cout << "\nThe maximum number of trains that can simultaneously arrive at " << station << " is " << flow << std::endl << std::endl;
 
@@ -312,6 +318,11 @@ void UserInterface::showMenu() {
 
                         if (error) {
                             std::cout << "One or more stations that you provided do not exist.\n\n";
+                            break;
+                        }
+
+                        if (res.empty()) {
+                            std::cout << "No stations were affected.\n\n";
                             break;
                         }
 
