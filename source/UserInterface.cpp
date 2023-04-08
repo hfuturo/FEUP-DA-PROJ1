@@ -5,7 +5,6 @@
 #include "../include/UserInterface.h"
 #include "../include/Graph.h"
 
-//TODO: nao esquecer de inicializar grafo no inicio se for sempre igual, tendo em conta alfa pendular e standard
 void UserInterface::showMenu() {
     Graph graph{};
     graph.fill();
@@ -119,8 +118,10 @@ void UserInterface::showMenu() {
                         }
                         std::cout << " that require a larger budget are: " << std::endl;
 
-                        for (auto v : res) {
-                            std::cout << "\t" <<v.first << std::endl;
+                        for (int i = 0; i < res.size(); i++) {
+                            std::cout << "(" << i+1 << ")\t";
+                            if (i+1 < 10) std::cout << "\t";
+                            std::cout << res.at(i).first << std::endl;
                         }
 
                         std::cout << std::endl;
@@ -145,6 +146,10 @@ void UserInterface::showMenu() {
                         std::cout << "\nThe maximum number of trains that can simultaneously arrive at " << station << " is " << flow << std::endl << std::endl;
 
                         break;
+                    }
+
+                    default: {
+                        std::cout << "Invalid input.\n\n";
                     }
                 }
                 break;
@@ -174,11 +179,11 @@ void UserInterface::showMenu() {
                     break;
                 }
                 if (res.first == -1 && res.second == -1) {
-                    std::cout << "There is no path between these stations.n\n\n";
+                    std::cout << "There is no path between " << origin << " and " << target << std::endl << std::endl;
                     break;
                 }
                 std::cout << "The maximum amount of trains that can simultaneously travel between " << origin << " and " << target << " is " << res.second;
-                std::cout << " with a total cost of " << res.first << " using the " << service << std::endl << std::endl;
+                std::cout << " with a total cost of " << res.first << " using the " << service << " service\n\n";
                 break;
             }
 
@@ -325,6 +330,10 @@ void UserInterface::showMenu() {
                     }
                 }
                 break;
+            }
+
+            default: {
+                std::cout << "Invalid input.\n\n";
             }
         }
         if (done) break;

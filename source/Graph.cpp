@@ -5,6 +5,7 @@
 #include <queue>
 #include <map>
 #include <unordered_map>
+#include <iostream>
 
 #include "../include/Graph.h"
 #include "../include/constants.h"
@@ -161,7 +162,7 @@ bool Graph::dfsVisitStandard(Station *s, const std::string &dest) {
                 auto neighbor = e->getDest();
                 if (e->getDest()->getName() == dest) return true;
                 if (!neighbor->isVisited()) {
-                    if (dfsVisit(neighbor, dest)) return true;
+                    if (dfsVisitStandard(neighbor, dest)) return true;
                 }
             }
         }
@@ -177,7 +178,7 @@ bool Graph::dfsVisitAlfaPendular(Station *s, const std::string &dest) {
                 auto neighbor = e->getDest();
                 if (e->getDest()->getName() == dest) return true;
                 if (!neighbor->isVisited()) {
-                    if (dfsVisit(neighbor, dest)) return true;
+                    if (dfsVisitAlfaPendular(neighbor, dest)) return true;
                 }
             }
         }
