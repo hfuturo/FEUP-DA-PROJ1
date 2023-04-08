@@ -278,28 +278,32 @@ std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullM
     std::map<std::pair<std::string, std::string>, double> map;
     std::vector<std::pair<double, std::pair<std::string, std::string>>> res;
 
-    for (auto v : getStationSet()) {
-        for (auto u : getStationSet()) {
+    for (auto v : getStationSet()) { //O(v)
+        for (auto u : getStationSet()) { //O(v)
             if (v != u) {
-                double flow = maxFlow(v->getName(), u->getName());
+                double flow = maxFlow(v->getName(), u->getName()); // O(VE^2)
                 if (flow == -1 || flow == -2) continue;
-                if (map.find({v->getName(), u->getName()}) == map.end() && map.find({u->getName(), v->getName()}) == map.end()) {
-                    map.insert({{v->getName(), u->getName()}, flow});
+                if (map.find({v->getName(), u->getName()}) == map.end() && map.find({u->getName(), v->getName()}) == map.end()) { //log(n)
+                    map.insert({{v->getName(), u->getName()}, flow}); //log(n)
                 }
             }
         }
     }
 
+    //O(V)
     for (auto& it : map) {
         res.emplace_back(it.second, it.first);
     }
 
+    //O(logn)
     std::sort(res.begin(), res.end(), [](std::pair<double, std::pair<std::string, std::string>>& p1, std::pair<double, std::pair<std::string, std::string>>& p2){
         return p1.first > p2.first;
     });
 
     double max = res.front().first;
     int counter = 1;
+
+    //O(n)
     for (int i = 1; i < res.size(); i++) {
         if (res.at(i).first < max) break;
         counter++;
@@ -312,18 +316,17 @@ std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullM
 std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
     std::unordered_map<std::string, double> map;
 
+    //O(v)
     for (auto v : getStationSet()) {
-        if (map.find(v->getDistrict()) == map.end()) {
-            map.insert({v->getDistrict(), 0});
-        }
+        map.insert({v->getDistrict(), 0});
     }
 
     //calcula flow entre estacoes do mesmo distrito
-    for (auto v : getStationSet()) {
-        for (auto u : getStationSet()) {
+    for (auto v : getStationSet()) { // O(V)
+        for (auto u : getStationSet()) { // O(V)
             if (v != u) {
                 if (u->getDistrict() == v->getDistrict()) {
-                    double flow = maxFlow(v->getName(), u->getName());
+                    double flow = maxFlow(v->getName(), u->getName()); // O(VE^2)
                     if (flow == -1 || flow == -2) continue;
                     map[u->getDistrict()] += flow;
                 }
@@ -359,9 +362,7 @@ std::vector<std::pair<std::string, double>> Graph::topMunicipalities(int n) {
     std::unordered_map<std::string, double> map;
 
     for (auto v : getStationSet()) {
-        if (map.find(v->getMunicipality()) == map.end()) {
-            map.insert({v->getMunicipality(), 0});
-        }
+        map.insert({v->getMunicipality(), 0});
     }
 
     //calcula flow entre estacoes do mesmo distrito
@@ -402,19 +403,21 @@ std::vector<std::pair<std::string, double>> Graph::topMunicipalities(int n) {
 }
 
 double Graph::maxFlowGridToStation(const std::string &dest) {
-    Station* target = findStation(dest);
+    Station* target = findStation(dest); //O(V)
     if (target == nullptr) {
         return -1;
     }
 
     if(!addStation("super source", "filler", "filler", "filler", "filler")) return -2;
 
+    //O(V^2)
     for (auto& v : getStationSet()) {
         if (v != target && v->getAdj().size() == 1) {
             addBidirectionalLine("super source", v->getName(), INT32_MAX, "filler");
         }
     }
 
+    //O(VE^2)
     double flow = maxFlow("super source", target->getName());
 
     auto supersource = findStation("super source");
