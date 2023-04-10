@@ -450,7 +450,7 @@ double Graph::maxFlowSubGraph(const std::vector<std::pair<std::string, std::stri
 }
 
 std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected(const std::vector<std::pair<std::string, std::string>> &linesToRemove, const int n, bool& error) {
-    std::map<std::pair<Station*,Station*>, double> map;
+    std::map<Station*, double> map;
     std::vector<std::pair<Station*, Station*>> stations;
     std::vector<std::vector<std::pair<Station*, double>>> res;
     std::vector<std::pair<std::pair<Station*, Station*>, std::pair<double, std::string>>> removedEdges;
@@ -465,15 +465,11 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
         stations.emplace_back(station1, station2);
     }
 
-    for (int i = 0; i < getStationSet().size() - 1; i++) {
-        Station* u = getStationSet().at(i);
-        for (int j = i+1; j < getStationSet().size(); j++) {
-            Station* v = getStationSet().at(j);
-            double flow = maxFlow(u->getName(), v->getName());
-            if (flow == -1 || flow == -2) continue;
-            map.insert({{u, v}, flow});
-        }
+    //calcula valores maximos
+    for (auto& v : getStationSet()) {
+        map.insert({v, maxFlowGridToStation(v->getName())});
     }
+
 
     for (auto& p : stations) {
         std::vector<std::pair<Station*, double>> aux;
@@ -486,13 +482,10 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
         delete edge;
         delete edge2;
 
-        double flow = maxFlow(p.first->getName(), p.second->getName());
-        if (flow == -1 || flow == -2) continue;
-        double maximumFlow = map[{p.first, p.second}];
-
-        //calcula stations mais afetadas e guarda em aux
-        aux.emplace_back(p.first, std::abs(flow - maximumFlow));
-        aux.emplace_back(p.second, std::abs(flow - maximumFlow));
+        for (auto& v : getStationSet()) {
+            double maximumFlow = map[v];
+            aux.emplace_back(v, std::abs(maximumFlow - maxFlowGridToStation(v->getName())));
+        }
 
         //ordena elementos
         std::sort(aux.begin(), aux.end(), [](std::pair<Station*, double>& p1, std::pair<Station*, double>& p2) {return p1.second > p2.second;});
