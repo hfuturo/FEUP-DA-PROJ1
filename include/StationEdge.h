@@ -232,6 +232,9 @@ public:
 
 /************************* Edge  **************************/
 
+/**
+ * @brief Represents a line between two stations.
+ */
 class Edge {
 private:
     /**
