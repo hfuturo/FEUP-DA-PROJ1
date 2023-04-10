@@ -327,16 +327,17 @@ void UserInterface::showMenu() {
 
                         int counter = 0;
                         for (auto& u : res) {
-                            int nStations = 0;
                             std::cout << "Line from " << linesToBeRemoved.at(counter).first << " to "
                                       << linesToBeRemoved.at(counter).second << " removed:" << std::endl;
+                            if (u.empty()) {
+                                std::cout << "\tNo stations were affected\n\n";
+                                continue;
+                            }
+                            if (u.size() < n) {
+                                std::cout << "\tOnly " << u.size() << " stations were affected.\n\n";
+                            }
                             for (auto& v : u) {
-                                if (v.second == 0 && nStations == 0) {
-                                    std::cout << "\tNo stations were affected\n\n";
-                                    break;
-                                }
                                 std::cout << "\t" << "Station " << v.first->getName() << " got its flow affected by " << v.second << std::endl;
-                                nStations++;
                             }
                             counter++;
                             std::cout << std::endl;

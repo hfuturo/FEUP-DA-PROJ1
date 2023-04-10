@@ -490,12 +490,18 @@ std::vector<std::vector<std::pair<Station*, double>>> Graph::topStationsAffected
         //ordena elementos
         std::sort(aux.begin(), aux.end(), [](std::pair<Station*, double>& p1, std::pair<Station*, double>& p2) {return p1.second > p2.second;});
 
-        if (n < aux.size()) {
-            std::vector<std::pair<Station*, double>> final(aux.begin(), aux.begin() + n);
+        int stationsAffected;
+        for (stationsAffected = 0; stationsAffected < aux.size(); stationsAffected++) {
+            if (aux.at(stationsAffected).second == 0) break;
+        }
+
+        if (stationsAffected <= n) {
+            std::vector<std::pair<Station*, double>> final(aux.begin(), aux.begin() + stationsAffected);
             res.push_back(final);
         }
         else {
-            res.push_back(aux);
+            std::vector<std::pair<Station*, double>> final(aux.begin(), aux.begin() + n);
+            res.push_back(final);
         }
 
         for (auto& pair : removedEdges) {
