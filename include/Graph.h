@@ -26,27 +26,37 @@ public:
     /**
      * @brief Get the vector where all the stations are stored.
      *
+     * @note Complexity time: O(1).
+     *
      * @return A vector containing all the stations of the graph.
      */
     std::vector<Station*> getStationSet() const;
 
     /**
      * @brief Populates the graph with the information from the csv files in the dataset.
+     *
+     * @note Complexity time: O(V^2).
      */
     void fill();
 
     /**
      * @brief Reads the stations from the file and adds them into the graph.
+     *
+     * @note Complexity time: O(V^2).
      */
     void readStations();
 
     /**
      * @brief Reads the Network(Edges) from the file and adds them into the graph.
+     *
+     * @note Complexity time: O(E).
      */
     void readNetwork();
 
     /**
      * @brief Removes a station from the graph.
+     *
+     * @note Complexity time: O(V + E^2).
      *
      * @param station The station that is going to be removed.
      * @return True if the station was successfully removed.
@@ -56,6 +66,8 @@ public:
 
     /**
      * @brief Adds a station to the graph.
+     *
+     * @note Complexity time: O(1).
      *
      * @param name The name of the station.
      * @param district The district where the station belongs.
@@ -70,6 +82,8 @@ public:
     /**
      * @brief Adds a Line to the graph.
      *
+     * @note Complexity time: O(1).
+     *
      * @param origin The name of the station where the line starts.
      * @param dest The name of the station where the line ends.
      * @param capacity The number of trains that can simultaneously travel on this line.
@@ -81,6 +95,9 @@ public:
 
     /**
      * @brief Gets a station with a given name if it exists.
+     *
+     * @note Complexity time: O(V).
+     *
      * @param name The name of the station.
      * @return The station if it exists.
      * @return A null pointer if it doesn't.
@@ -89,6 +106,8 @@ public:
 
     /**
      * @brief Adds a bidirectional line to a graph.
+     *
+     * @note Complexity time: O(V).
      *
      * @param origin The origin of the line.
      * @param dest The destination of the line.
@@ -117,6 +136,7 @@ public:
      * @brief Finds an augmenting path between two stations.
      *
      * @note This function was implemented by Gonçalo Leão.
+     * @note Complexity time: O(V+E).
      *
      * @param s The origin station.
      * @param t The final station.
@@ -129,6 +149,7 @@ public:
      * @brief Calculates how much more flow is allowed in each edge of the augmenting path.
      *
      * @note This function was implemented by Gonçalo Leão.
+     * @note Complexity time: O(E).
      *
      * @param s The origin station.
      * @param t The destination station.
@@ -140,6 +161,7 @@ public:
      * @brief Finds the flow of a augmented path.
      *
      * @note This function was implemented by Goncaçalo Leão.
+     * @note Complexity time: O(E).
      *
      * @param s The origin station.
      * @param t The destination station.
@@ -151,6 +173,7 @@ public:
      * @brief This function evaluates if the staion w is optimal to insert into the queue. (BFS)
      *
      * @note This function was implemented by Gonçalo Leão.
+     * @note Complexity time: O(1).
      *
      * @param q Queue where we are going to add stations.
      * @param e Edge that we took to get to station w.
@@ -175,6 +198,8 @@ public:
     /**
      * @brief Executes the "heavy work" of the dfs algorithm in all paths.
      *
+     * @note Complexity time: O(V+E).
+     *
      * @param s The origin station.
      * @param dest The destination station's name.
      * @return True if a path exists.
@@ -185,6 +210,8 @@ public:
     /**
      * @brief Executes the "heavy work" of the dfs algorithm in "ALFA PENDULAR" paths.
      *
+     * @note Complexity time: O(V+E).
+     *
      * @param s The origin station.
      * @param dest The destination station's name.
      * @return True if a path exists.
@@ -194,6 +221,8 @@ public:
 
     /**
      * @brief Executes the "heavy work" of the dfs algorithm in "STANDARD" paths.
+     *
+     * @note Complexity time: O(V+E).
      *
      * @param s The origin station.
      * @param dest The destination station's name.
@@ -280,7 +309,7 @@ public:
     /**
      * @brief Provides the top (n) stations that were affected by the lines removed.
      *
-     * @brief Complexity time: O(V^2 * E^3)
+     * @note Complexity time: O(V^2 * E^3)
      *
      * @param linesToRemove A vector that contains a pair of the station's name that are going to have the edges that connect them removed.
      * @param n The number of stations that we want to see affected.
@@ -291,6 +320,8 @@ public:
 
     /**
      * @brief Calculate the maximum number of trains that can travel between a specific path.
+     *
+     * @note Complexity time: O(E).
      *
      * @param origin The origin station.
      * @param dest The destination station.
