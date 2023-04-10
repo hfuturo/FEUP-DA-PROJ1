@@ -7,7 +7,6 @@
 
 void UserInterface::showMenu() {
     Graph graph{};
-    graph.fill();
     bool done = false;
     char userchoice;
 
@@ -15,6 +14,7 @@ void UserInterface::showMenu() {
         std::cout << "======================================" << std::endl;
         std::cout << "\t\t\t\t Menu \t" << std::endl;
         std::cout << "======================================" << std::endl;
+        std::cout << "(0) Read and Parse the Dataset" << std::endl;
         std::cout << "(1) Basic Service Metrics" << std::endl;
         std::cout << "(2) Operation Cost Optimization" << std::endl;
         std::cout << "(3) Reliability and Sensitivity to Line Failures" << std::endl;
@@ -22,11 +22,17 @@ void UserInterface::showMenu() {
 
         std::cin >> userchoice;
         std::cout << std::endl;
-        std::cin.ignore(); //testing this
+        std::cin.ignore();
 
         switch (userchoice) {
             case 'q':
             case 'Q': done = true; break;
+
+            case '0': {
+                graph.fill();
+                std::cout << "Done.\n\n";
+                break;
+            }
 
             case '1': {
                 char userchoice2;
