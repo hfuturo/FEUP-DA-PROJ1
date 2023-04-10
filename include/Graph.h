@@ -280,6 +280,8 @@ public:
     /**
      * @brief Provides the top (n) stations that were affected by the lines removed.
      *
+     * @brief Complexity time: O(V^2 * E^3)
+     *
      * @param linesToRemove A vector that contains a pair of the station's name that are going to have the edges that connect them removed.
      * @param n The number of stations that we want to see affected.
      * @param error Variable to be initialized if an error occurred.
