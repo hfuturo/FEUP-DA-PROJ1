@@ -256,7 +256,6 @@ void UserInterface::showMenu() {
                         std::string origin, target;
                         std::cout << "** Maximum number of trains that can simultaneously travel between two specific stations in a network of reduced connectivity **\n";
                         std::cout << std::endl;
-                        //std::cin.ignore();
 
                         while (true) {
                             std::cout << "Insert the name of the first station: ";

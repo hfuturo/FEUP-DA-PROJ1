@@ -103,6 +103,7 @@ public:
      * @brief Gets the maximum number of trains that can simultaneously travel between two stations by apllying the Edmonds-Karp Algorithm.
      *
      * @note This function was implemented by Gonçalo Leão.
+     * @note Complexity time: O(VE^2)
      *
      * @param source The name of the origin station.
      * @param target The name of the final station.
@@ -161,6 +162,8 @@ public:
     /**
      * @brief Aplly the DFS algorithm to see if a path between source and dest exist. We can apply DFS in all paths, STANDARD paths and ALFA PENDULAR paths.
      *
+     * @note Complexity time: O(V+E)
+     *
      * @param source The origin station's name
      * @param dest The destination station's name
      * @param service The service we want to execute the DFS. "All" executes dfs in all paths. "Standard" executes dfs only in standard paths. "ALFA PENDULAR" executes dfs only in alfa pendular paths.
@@ -202,12 +205,16 @@ public:
     /**
      * @brief Executes the Edmonds-Karp algorithm in all pair of stations to find the pair of stations that require the most amount of trains.
      *
+     * @note Complexity time: O(V^3 * E^2).
+     *
      * @return A vector containing the number of trains and the pair of station's name.
      */
     std::vector<std::pair<double, std::pair<std::string, std::string>>> fullMaxFlow();
 
     /**
      * @brief Executes the Edmonds-Karp algorithm to find the top (n) districts with the most flow of trains.
+     *
+     * @note Complexity time: O(V^3 * E^2).
      *
      * @param n The number of the districts that we want to see.
      * @return A vector containing a pair with the district name and the respective flow of trains.
@@ -217,6 +224,8 @@ public:
     /**
      * @brief Executes the Edmonds-Karp algorithm to find the top (n) municipalities with the most flow of trains.
      *
+     * @note Complexity time: O(V^3 * E^2).
+     *
      * @param n The number of the districts that we want to see.
      * @return A vector containing a pair with the district name and the respective flow of trains.
      */
@@ -224,6 +233,9 @@ public:
 
     /**
      * @brief Finds the maximum number of trains that can travel simultaneously to a specific station from the entire railway network.
+     *
+     * @note Complexity time: O(VE^2).
+     *
      * @param dest The name of the station.
      * @return
      */
@@ -233,6 +245,7 @@ public:
      * @brief Finds the path that connects two stations which cost less to the company while maximizes the number of trains that can travel.
      *
      * @note If there is no path that connects the origin station and the destination station, the service will be uninitialized.
+     * @note Complexity time: O(ElogV)
      *
      * @param origin The origin station's name.
      * @param dest The destination station's name.
@@ -244,6 +257,8 @@ public:
     /**
      * @brief Calculates the maximum number of trains that can simultaneously travel between two stations by apllying the Edmonds-Karp Algorithm in a subgraph.
      *
+     * @note Complexity time: O(VE^2)
+     *
      * @param linesToRemove A vector that contains a pair of the station's name that are going to have the edges that connect them removed.
      * @param origin The origin station's name.
      * @param dest The destination station's name.
@@ -253,6 +268,8 @@ public:
 
     /**
      * @brief Finds the minimal cost path between two stations. We can apply in "STANDARD" paths and "ALFA PENDULAR" paths.
+     *
+     * @note Complexity time: O(ElogV)
      *
      * @param source The origin station.
      * @param dest The destination station.

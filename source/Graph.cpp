@@ -246,13 +246,12 @@ double Graph::maxFlow(const std::string &source, const std::string &target) {
 
     if (!dfs(source, target, "ALL")) return -1;
 
-    // Reset the flows
     for (auto v : stationSet) {
         for (auto e: v->getAdj()) {
             e->setFlow(0);
         }
     }
-    // Loop to find augmentation paths
+
     while( findAugmentingPath(s, t) ) {
         double f = findMinResidualAlongPath(s, t);
         augmentFlowAlongPath(s, t, f);
@@ -289,12 +288,10 @@ std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullM
         }
     }
 
-    //O(V)
     for (auto& it : map) {
         res.emplace_back(it.second, it.first);
     }
 
-    //O(logn)
     std::sort(res.begin(), res.end(), [](std::pair<double, std::pair<std::string, std::string>>& p1, std::pair<double, std::pair<std::string, std::string>>& p2){
         return p1.first > p2.first;
     });
@@ -302,7 +299,6 @@ std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullM
     double max = res.front().first;
     int counter = 1;
 
-    //O(n)
     for (int i = 1; i < res.size(); i++) {
         if (res.at(i).first < max) break;
         counter++;
@@ -315,14 +311,13 @@ std::vector<std::pair<double, std::pair<std::string, std::string>>> Graph::fullM
 std::vector<std::pair<std::string, double>> Graph::topDistricts(int n) {
     std::unordered_map<std::string, double> map;
 
-    //O(v)
     for (auto v : getStationSet()) {
         map.insert({v->getDistrict(), 0});
     }
 
     //calcula flow entre estacoes do mesmo distrito
-    for (auto v : getStationSet()) { // O(V)
-        for (auto u : getStationSet()) { // O(V)
+    for (auto v : getStationSet()) {
+        for (auto u : getStationSet()) {
             if (v != u) {
                 if (u->getDistrict() == v->getDistrict()) {
                     double flow = maxFlow(v->getName(), u->getName()); // O(VE^2)
@@ -403,21 +398,19 @@ std::vector<std::pair<std::string, double>> Graph::topMunicipalities(int n) {
 }
 
 double Graph::maxFlowGridToStation(const std::string &dest) {
-    Station* target = findStation(dest); //O(V)
+    Station* target = findStation(dest);
     if (target == nullptr) {
         return -1;
     }
 
     if(!addStation("super source", "filler", "filler", "filler", "filler")) return -2;
 
-    //O(V^2)
     for (auto& v : getStationSet()) {
         if (v != target && v->getAdj().size() == 1) {
             addBidirectionalLine("super source", v->getName(), INT32_MAX, "filler");
         }
     }
 
-    //O(VE^2)
     double flow = maxFlow("super source", target->getName());
 
     auto supersource = findStation("super source");
